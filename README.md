@@ -2,7 +2,7 @@
 ### js기반 웹 풀스택 개발 수업
 
 ## 22.09.30 ~ 
-### Java start
+### Java
   
 System.out.println("\t") : 글자 포함 8포인트
   
