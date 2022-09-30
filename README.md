@@ -4,7 +4,7 @@
 ## 22.09.30 ~ 
 ### Java
 
-println
+println  
 Scanner
 
 System.out.println("\t") : 글자 포함 8포인트
