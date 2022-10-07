@@ -9,8 +9,8 @@ public class Ex01 {
 		
 		boolean run = true;
 		boolean loginCK = false;
-		String id = "";
-		String pw = "";
+		String id = "test";
+		String pw = "1234";
 		String name = "";
 		int menu = 0;
 	
@@ -18,7 +18,7 @@ public class Ex01 {
 			if (loginCK) {
 				System.out.printf("1.정보수정 2. 로그아웃(%s님) 3. 종료\n", name);
 			} else {
-				System.out.println("1.회원가입 2. 로그인 3. 종료");
+				System.out.println("1.회원가입 2. 로그인 3. 종료 4.회원정보 찾기");
 			}
 			System.out.print("메뉴선택 : ");
 			if(sc.hasNextInt()) {
@@ -31,6 +31,7 @@ public class Ex01 {
 				if (loginCK) {
 					
 					System.out.println("1.이름 수정 2.아이디 수정 3.비밀번호 수정 4.나가기");
+					System.out.print("메뉴 선택 : ");
 					menu = sc.nextInt();sc.nextLine();
 					switch(menu) {
 					case 1:
@@ -105,6 +106,14 @@ public class Ex01 {
 			case 3:
 				System.out.println("종료");
 				run = false;
+				break;
+			case 4:
+				System.out.print("이 프로그램 개발자 이름을 적어보세요 : ");
+				if(sc.nextLine().equals("창용")) {
+					System.out.printf("아이디 : %s / 비밀번호 : %s\n",id,pw);
+				}else {
+					System.err.println("땡!!!");
+				}
 				break;
 			default:
 				System.out.println("메뉴번호 확인");
