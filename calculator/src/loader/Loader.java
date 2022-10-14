@@ -13,7 +13,10 @@ public class Loader {
 		FrontEnd frontEnd = new FrontEnd();
 //		BackEnd backEnd = new BackEnd();
 		
-		System.out.println("Closiing...");
+		frontEnd.aaa();
+		frontEnd.bbb();
+		
+		System.out.println("Closing...");
 
 	}
 

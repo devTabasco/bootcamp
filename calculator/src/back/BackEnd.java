@@ -3,7 +3,7 @@ package back;
 public class BackEnd {
 
 	public BackEnd() {
-		System.out.println("나는 백엔드");
+		
 	}
 
 	public long controller(long num1, long num2, char operator) {
