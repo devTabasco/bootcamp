@@ -7,9 +7,9 @@ public class Loader {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		System.out.println("Loading...");
+//		System.out.println("Loading...");
 		new FrontEnd(1);
-		System.out.println("Closing...");
+//		System.out.println("Closing...");
 
 	}
 
