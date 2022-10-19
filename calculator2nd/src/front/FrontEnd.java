@@ -156,6 +156,7 @@
 package front;
 
 import java.util.Scanner;
+import back.BackEnd;
 
 public class FrontEnd {
 
@@ -163,159 +164,195 @@ public class FrontEnd {
 		this.controller(recordIdx);
 	}
 
+	BackEnd backEnd = new BackEnd();
+
 	public void controller(int recordIndex) {
 		Scanner scanner = new Scanner(System.in);
 		String title = this.makeTitle();
 		String[][] menu = { { "EXIT", "프로그램을 종료합니다.~" }, { "메인", "연산하기", "끝내기" },
 				{ "연산", "새로운 연산", "이어서 연산", "이전화면" } };
-		String[] data = new String[4];
+		String[] operMenu = { "숫자를 입력해주세요", "연산자를 입력해주세요", "숫자를 입력해주세요", "연산결과" };
+		int[] data = new int[4];
 
-		String userData;
+		int operMenuIndex = 0;
+		String userData = "";
 		String message = new String();
-		String operation = "";
 		int selectMenu;
 		boolean loopCheck = true;
-		int promptIndex = 0;
-		boolean operatorCheck = true;
-		String[] prompt = { "숫자를 입력해주세요", "연산자를 선택해주세요", "숫자를 입력해주세요", "연산결과" };
+		String statement = "";
+		long result = 0L;
+		boolean check = true;
+//		boolean operCheck = false;
 
 		while (true) {
-			if (operatorCheck)
+			if (recordIndex < 3)
 				this.display(title);
 			if (message != null)
 				this.display(message);
-			
-			if (recordIndex >= 3) {
-				this.display(title);
-				this.display(this.makeOperatorMenu(prompt[promptIndex]));
-			} else {
+			if (recordIndex < 3)
 				this.display(this.makeSubMenu(menu[recordIndex]));
+			if (!loopCheck)
+				break;
 
-				if (!loopCheck)
-					break;
+			if (operMenuIndex > 0) {// 초기
+				operMenuIndex = 0;
+				recordIndex = 1;
+				statement = "";
+			}
 
+			if (recordIndex != 3)
 				userData = this.userInput(scanner);
 
-				if (this.isInteger(userData)) {
-					selectMenu = this.convertToInteger(userData);
-					recordIndex += (selectMenu == 0)? -1: 1;
+			if (this.isInteger(userData)) {
+				selectMenu = this.convertToInteger(userData);
 
-					if (recordIndex >= 3) {
-						
-						while (true) {
+				if (recordIndex <= 2) {
+					if (this.isIntegerRange(selectMenu, 0, menu[recordIndex].length - 2)) {
+						message = null;
+						recordIndex += (selectMenu == 0) ? -1 : 1;
+						if (recordIndex == 0)
+							loopCheck = false;
 
-							String num1 = scanner.next();
-							data[0] = num1;
-							operation = printOperation(data[0], operation);
-							promptIndex++;
-
-							///////////////////////
-
-							this.display(title);
-							this.display(this.makeOperatorMenu(prompt[promptIndex]));
-							System.out.println(operation);
-							System.out.print(" [선택 : 1. 더하기  2. 빼기   3. 곱하기   4. 나누기] : ");
-
-							String operator = scanner.next();
-							data[1] = operator;
-
-							switch (data[1]) {
-							case "1":
-								data[1] = "+";
-								break;
-							case "2":
-								data[1] = "-";
-								break;
-							case "3":
-								data[1] = "*";
-								break;
-							case "4":
-								data[1] = "/";
-								break;
-							default:
-								break;
-							}
-
-							operation = printOperation(data[1], operation);
-							promptIndex++;
-
-							///////////////////////
-
-							this.display(title);
-							this.display(this.makeOperatorMenu(prompt[promptIndex]));
-							System.out.print(operation);
-
-							String num2 = scanner.next();
-							data[2] = num2;
-							operation = printOperation(data[2], operation);
-							promptIndex++;
-
-							/////////////////////
-
-							this.display(title);
-							this.display(this.makeOperatorMenu(prompt[promptIndex]));
-							System.out.print(operation + "= ");
-							promptIndex = 0;
-
-							// backend 연결
-							switch (data[1]) {
-							case "+":
-								System.out.println(Integer.parseInt(data[0]) + Integer.parseInt(data[2]));
-								break;
-							case "-":
-								System.out.println(Integer.parseInt(data[0]) - Integer.parseInt(data[2]));
-								break;
-							case "*":
-								System.out.println(Integer.parseInt(data[0]) * Integer.parseInt(data[2]));
-								break;
-							case "/":
-								System.out.println(Integer.parseInt(data[0]) / Integer.parseInt(data[2]));
-								break;
-							default:
-								break;
-							}
-
-							operatorCheck = false;
-							operation = "";
-							break;
-						}
 					} else {
-						if (this.isIntegerRange(selectMenu, 0, menu[recordIndex].length - 2)) {
-							message = null;
+						message = "[ 0~" + (menu[recordIndex].length - 2) + " 범위내 숫자를 입력해주세요]\n";
+					}
+				} else {
+					// 연산 서브메뉴 만들기
+					// 숫자를 입력해주세요, 연산자를 입력해주세요, 숫자를 입력해주세요, 연산결과
+//					boolean check = true;
 
-							if (recordIndex <= 2) {
-								recordIndex += (selectMenu == 0) ? -1 : 1;
-							} else {
-								recordIndex = ((selectMenu == 0) ? 1 : 3);
+					while (check) {
+						check = true;
+
+						if (operMenuIndex == 1) {
+							this.display(title);
+							this.display(makeOperMenu(operMenu[operMenuIndex]));
+							if (operMenuIndex > 0)
+								this.display(statement);
+							this.display("\n[선택 : 1. 더하기  2. 빼기   3. 곱하기   4. 나누기] : ");
+						} else {
+							this.display(title);
+							this.display(makeOperMenu(operMenu[operMenuIndex]));
+							if (operMenuIndex > 0)
+								this.display(statement);
+						}
+
+						if (operMenuIndex == 3) {
+							recordIndex = 2;
+							statement = "";
+
+							while (true) {
+								if (!check)
+									this.display(title);
+								if (message != null)
+									this.display(message);
+								this.display(this.makeSubMenu(menu[recordIndex]));
+
+								userData = this.userInput(scanner);
+
+								if (this.isInteger(userData))
+									selectMenu = this.convertToInteger(userData);
+
+								if (this.isIntegerRange(selectMenu, 0, menu[recordIndex].length - 2)) {
+
+									if (selectMenu == 1) {
+//										operCheck = false;
+										check = false;
+										break;
+									} else if (selectMenu == 2) {
+										data[0] = (int) result;
+										data[1] = 0;
+										data[2] = 0;
+										data[3] = 0;
+										statement = "" + data[0];
+										operMenuIndex = 1;
+//										operCheck = true;
+										this.display(title);
+
+										if (operMenuIndex == 1) {
+											this.display(makeOperMenu(operMenu[operMenuIndex]));
+											this.display(statement);
+											this.display("\n[선택 : 1. 더하기  2. 빼기   3. 곱하기   4. 나누기] : ");
+										} else {
+											this.display(makeOperMenu(operMenu[operMenuIndex]));
+											this.display(statement);
+										}
+
+										break;
+									} else if (selectMenu == 0) {
+										recordIndex = 1;
+										check = false;
+										break;
+									} else {
+
+									}
+
+								} else {
+									message = "[ 0~" + (menu[recordIndex].length - 2) + " 범위내 숫자를 입력해주세요]\n";
+								}
 							}
 
-							if (recordIndex == 0)
-								loopCheck = false;
+							if (!check)
+								break;
+
+						}
+
+						userData = this.userInput(scanner);
+
+						if (this.isInteger(userData))
+							data[operMenuIndex] = this.convertToInteger(userData);
+
+						if (operMenuIndex == 1) {
+							switch (data[operMenuIndex]) {
+							case 1:
+								statement = makeExpression("+", statement);
+								break;
+							case 2:
+								statement = makeExpression("-", statement);
+								break;
+							case 3:
+								statement = makeExpression("*", statement);
+								break;
+							case 4:
+								statement = makeExpression("/", statement);
+								break;
+							}
+						} else if (operMenuIndex == 2) {
+
+							switch (data[1]) {
+							case 1:
+								result = backEnd.add(data[0], data[2], '+');
+								break;
+							case 2:
+								result = backEnd.minus(data[0], data[2], '+');
+								break;
+							case 3:
+								result = backEnd.multiple(data[0], data[2], '+');
+								break;
+							case 4:
+								result = backEnd.devide(data[0], data[2], '+');
+								break;
+							}
+
+							statement = makeExpression(
+									String.valueOf(data[operMenuIndex] + " = " + String.valueOf(result) + "\n"),
+									statement);
 
 						} else {
-							message = "[ 0~" + (menu[recordIndex].length - 2) + " 범위내 숫자를 입력해주세요]";
+							statement = makeExpression(String.valueOf(data[operMenuIndex]), statement);
 						}
-					}
 
-				} else {
-					message = "[ 숫자로 입력해 주세요 ]\n";
+						operMenuIndex++;
+
+					}
 				}
+
+			} else {
+				message = "[ 숫자로 입력해 주세요 ]\n";
 			}
 
 		}
 		scanner.close();
-	}
-
-	public void operator(String title, String[] menu, Scanner sc) {
-
-	}
-
-	public String printOperation(String input, String operation) {
-		StringBuffer str = new StringBuffer();
-		str.append(operation);
-		str.append(input);
-		str.append(" ");
-		return str.toString();
 	}
 
 	public String makeTitle() {
@@ -325,6 +362,21 @@ public class FrontEnd {
 		title.append("		           Designed By HoonZzang\n\n");
 		title.append("****************************************************\n\n");
 		return title.toString();
+	}
+
+	public String makeExpression(String data, String statement) {
+		StringBuffer expression = new StringBuffer();
+		expression.append(statement);
+		expression.append(data);
+		expression.append(" ");
+		return expression.toString();
+	}
+
+	public String makeOperMenu(String menu) {
+		StringBuffer subMenu = new StringBuffer();
+		subMenu.append("  [ " + menu + " ]");
+		subMenu.append(" _____________________________________\n");
+		return subMenu.toString();
 	}
 
 	public String makeMessage(String text) {
@@ -356,15 +408,6 @@ public class FrontEnd {
 			}
 			subMenu.append("  __________________________________ select : ");
 		}
-		return subMenu.toString();
-	}
-
-	public String makeOperatorMenu(String prompt) {
-
-		StringBuffer subMenu = new StringBuffer();
-		subMenu.append("  [ " + prompt + " ]");
-		subMenu.append(" _____________________________________\n");
-
 		return subMenu.toString();
 	}
 
@@ -410,3 +453,4 @@ public class FrontEnd {
 	}
 
 }
+
