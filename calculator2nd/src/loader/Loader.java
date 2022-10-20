@@ -1,6 +1,8 @@
 package loader;
 
-import front.FrontEnd;
+//import front.FrontEnd;
+import front.FrontEnd2;
+import front.FrontEnd3;
 
 public class Loader {
 
@@ -8,7 +10,8 @@ public class Loader {
 		// TODO Auto-generated method stub
 		
 //		System.out.println("Loading...");
-		new FrontEnd(1);
+//		new FrontEnd(1);
+		new FrontEnd3(1);
 //		System.out.println("Closing...");
 
 	}
