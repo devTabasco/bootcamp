@@ -48,10 +48,10 @@ public class UserApp_copy {
 			connecting();
 
 			/* 서버에 로그인 정보 전달 */
-			ctl.controller(this.makeClientData("1", itemName, accessInfo));
+			//serviceCode=1&id=changyong&password=1234
+			accessResult = ctl.controller(this.makeClientData("1", itemName, accessInfo)).equals("1")?true:false; //"1" or "0";
 
 			/* 서버로부터 받은 로그인 결과에 따른 화면 출력 */
-			accessResult = true; // server에서 true를 받았다고 가정
 			this.display(this.accessResult(accessResult));
 			if (!accessResult) {
 				/* 로그인 실패 */
@@ -72,6 +72,8 @@ public class UserApp_copy {
 
 					/* 0번 선택시 서버에 로그아웃 통보 후 프로그램 종료 */
 					if (menuSelection.toUpperCase().equals("0")) {
+						ctl.controller(this.makeClientData("2", itemName, accessInfo)); //로그아웃
+						
 						isLoop = false;
 					}
 				}
@@ -95,16 +97,16 @@ public class UserApp_copy {
 			clientData.append("&");
 			clientData.append(item[i] + "=" + userData[i]);
 		}
-		return clientData.toString();
+		return clientData.toString(); //serviceCode=1&id=changyong&password=1234
 	}
 
 	// ID, PW 존재여부를 받아 text 출력
-	private String loginResult(boolean loginCk) {
-		if (loginCk)
-			return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Successful Connection!\n";
-		else
-			return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Connection failed!\n";
-	}
+//	private String loginResult(boolean loginCk) {
+//		if (loginCk)
+//			return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Successful Connection!\n";
+//		else
+//			return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Connection failed!\n";
+//	}
 
 	private String mainTitle(String today) {
 		StringBuffer title = new StringBuffer();
@@ -138,7 +140,7 @@ public class UserApp_copy {
 		accessResult.append("\n     >>>>>>>>>>>>>>>>>>>>>>>>> ");
 		if (isAccess) {
 			accessResult.append("Successful Connection\n");
-			accessResult.append("     Move after 2 sceonds...");
+			accessResult.append("     Move after 2 sceonds...\n");
 		} else {
 			accessResult.append("Connection Failed\n");
 			accessResult.append("     _______________________________ Retry(y/n) ? ");
@@ -163,7 +165,7 @@ public class UserApp_copy {
 
 	private void connecting() {
 		System.out.print("     connecting");
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 13; i++) {
 			System.out.print("...");
 
 			try {

@@ -1,5 +1,10 @@
 package server;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
+import server.beans.AccessHistoryBean;
 import server.beans.MemberBean;
 
 //Login, Logout, Log history
@@ -20,39 +25,103 @@ public class Auth {
 //		3-2. false : client
 //	4. 접속기록(로그) 생성
 //	5. client에 결과 통보
+	
+	public boolean logoutCtl(String clientData) {
+		MemberBean memberBean = this.setMemberBean(clientData);
+		DataAccessObject dao = new DataAccessObject();
+		AccessHistoryBean accessHistoryBean;
+		boolean logoutResult = false;
+		
+		//historybean에 값을 저장
+		//fileIndex(1), accessCode, date, accessType(-1)
+		accessHistoryBean = new AccessHistoryBean();
+		accessHistoryBean.setFileIndex(1);
+		accessHistoryBean.setAccessCode(memberBean.getAccessCode());
+		accessHistoryBean.setAccessDate(getDate(false));
+		accessHistoryBean.setAccessType(-1);
+		
+		logoutResult = dao.writeAccessHistory(accessHistoryBean);
+		
+		return logoutResult;
+	}
 
-	public boolean accessCtl(String clientData) {
+	public boolean accessCtl(String clientData) { //serviceCode=1&id=changyong&password=1234
 		// clientData 분리 후
 		// id는 MemberBean.setAccessCode();
 		// pw는 MemberBean.setSecretCode();
 		
-		MemberBean memberBean = this.setMemberBean(clientData);
-		System.out.println(memberBean.getAccessCode());
-		System.out.println(memberBean.getSecretCode());
+		MemberBean memberBean = this.setMemberBean(clientData); //내가 적은 id, pw가 담긴 memberBean.
+		DataAccessObject dao = new DataAccessObject();
+		ArrayList<MemberBean> memberList = dao.readDatabase(0);
+		AccessHistoryBean accessHistoryBean;
+		boolean accessResult = false;
 		
-		return true;
+		if(compareAccessCode(memberBean.getAccessCode(),memberList)) {
+			if(isAuth(memberBean,memberList)) {
+				//로그인 가능
+				//historybean에 값을 저장
+				//fileIndex(1), accessCode, date, accessType(1)
+				//로그 기록
+				accessHistoryBean = new AccessHistoryBean();
+				accessHistoryBean.setFileIndex(1);
+				accessHistoryBean.setAccessCode(memberBean.getAccessCode());
+				accessHistoryBean.setAccessDate(getDate(false));
+				accessHistoryBean.setAccessType(1);
+				
+				//로그인 결과 넘겨주기
+				accessResult = dao.writeAccessHistory(accessHistoryBean);
+				
+			}else {
+				//로그인 불가
+			}
+		}
+		
+		return accessResult;
+	}
+	
+	private String getDate(boolean isDate) {
+		String pattern = (isDate)? "yyyyMMdd": "yyyyMMddHHmmss";
+		return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern)); 
 	}
 
 	private MemberBean setMemberBean(String clientData) {
 		MemberBean memberBean = new MemberBean();
 
 		String[] splitData = clientData.split("&");
-		memberBean.setAccessCode(splitData[1].split("=")[1]);
-		memberBean.setSecretCode(splitData[2].split("=")[1]);
+		memberBean.setAccessCode(splitData[1].split("=")[1]); // changyong
+		memberBean.setSecretCode(splitData[2].split("=")[1]); // 1234
 
 		return memberBean;
 	}
 
 	// AccessCode 존재여부 확인
-	// recode넘버를 보내주면 안됨?
-	private boolean compareAccessCode() {
-
-		return true;
+	private boolean compareAccessCode(String accessCode, ArrayList<MemberBean> memberList) {
+		boolean result = false;
+		
+		for(MemberBean member : memberList) {
+			if(accessCode.equals(member.getAccessCode())) {
+				result = true;
+				break;
+			}
+		}
+		
+		return result;
 	}
 
 	// AccessCode와 SecretCode의 비교
-	private boolean isAuth() {
-		return false;
+	private boolean isAuth(MemberBean memberBean, ArrayList<MemberBean> memberList) {
+		boolean result = false;
+		
+		for(MemberBean member : memberList) {
+			if(memberBean.getAccessCode().equals(member.getAccessCode())) {
+				if(memberBean.getSecretCode().equals(member.getSecretCode())) {
+					result = true;
+					break;
+				}
+			}
+		}
+		
+		return result;
 	}
 
 }

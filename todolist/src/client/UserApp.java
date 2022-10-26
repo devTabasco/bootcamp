@@ -34,10 +34,9 @@ public class UserApp {
 			this.display(this.getAccessLayer(false, null)); //print connecting...
 			
 			/* 서버에 로그인 정보 전달 */
-			ctl.controller(this.makeClientData("1",itemName, accessInfo));
+			accessResult = ctl.controller(this.makeClientData("1",itemName, accessInfo)).equals("1")?true:false; //"1" or "0";
 			
 			/* 서버로부터 받은 로그인 결과에 따른 화면 출력 */
-			accessResult = true; //server에서 true를 받았다고 가정
 			this.display(this.accessResult(accessResult));
 			if(!accessResult) {
 				/* 로그인 실패 */
