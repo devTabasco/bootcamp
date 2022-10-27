@@ -10,14 +10,13 @@ public class ServerController {
 	public String controller(String clientData) { //serviceCode=1&id=changyong&password=1234
 		String accessResult = null;
 		String serviceCode = clientData.split("&")[0].split("=")[1];
-		// serviceCode=1&id=changyong&password=1234
 
 		if (serviceCode.equals("1")) {
 			// Auth Class
 			Auth auth = new Auth();
 			// UserApp에 결과 통보
 			accessResult = auth.accessCtl(clientData) ? "1" : "0";
-		}else if(serviceCode.equals("2")) {
+		}else if(serviceCode.equals("-1")) {
 			// serviceCode=1&id=changyong&password=1234
 			Auth auth = new Auth();
 			accessResult = auth.logoutCtl(clientData) ? "1" : "0";

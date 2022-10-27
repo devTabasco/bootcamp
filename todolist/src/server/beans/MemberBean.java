@@ -1,12 +1,21 @@
 package server.beans;
 
 public class MemberBean {
+	private int fileIndex;
 	private String accessCode;
 	private String secretCode;
 	private String name;
 	private String phoneNumber;
 	private int activation;
 	
+	
+	
+	public int getFileIndex() {
+		return fileIndex;
+	}
+	public void setFileIndex(int fileindex) {
+		this.fileIndex = fileindex;
+	}
 	public String getAccessCode() {
 		return accessCode;
 	}
