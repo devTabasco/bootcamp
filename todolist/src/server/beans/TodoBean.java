@@ -9,6 +9,7 @@ public class TodoBean {
 	private char status;
 	private char isEnable;
 	
+	
 	public int getFileIndex() {
 		return fileIndex;
 	}

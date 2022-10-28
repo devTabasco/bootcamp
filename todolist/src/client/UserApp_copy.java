@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Scanner;
 
 import server.ServerController;
+import server.TaskManager;
 
 public class UserApp_copy {
 
@@ -21,6 +22,7 @@ public class UserApp_copy {
 		boolean isLoop = true;
 		boolean accessResult;
 		ServerController ctl = new ServerController();
+		TaskManagement taskManagement = null;
 		String[] itemName = { "id", "pw" };
 //		String[][] menu = {
 //				{ "Menu Selection", "1. Task List", "2. Task Settings", "3. Modify Task", "4. Task Stats",
@@ -81,13 +83,15 @@ public class UserApp_copy {
 					if (menuSelection.toUpperCase().equals("0")) {
 						ctl.controller(this.makeClientData("-1", itemName, accessInfo)); // 로그아웃
 						isLoop = false;
-					}else {
+					}else if(menuSelection.toUpperCase().equals("1")) {
 						/* 1번 선택시 */
-						if (menuSelection.toUpperCase().equals("1")) {
-							this.makeCalendar(2022, 10);
-						}
 
 						//TaskManagemant Class Call
+						taskManagement = new TaskManagement();
+						taskManagement.taskController(11, accessInfo[0]);
+						
+						
+//						ctl.controller("serviceCode=9&accessCode=changyong&date=202210");
 						
 						//MakeCalendar Class Call
 						
@@ -98,11 +102,6 @@ public class UserApp_copy {
 
 		this.display("\n\n  x-x-x-x-x-x-x-x-x-x- 프로그램을 종료합니다 -x-x-x-x-x-x-x-x-x-x");
 		sc.close();
-
-//		System.out.println("아이디는 " + id);
-//		System.out.println("비밀번호는 " + pw);
-
-//		backEnd.makeCalendar(2022, 10);
 	}
 
 	// makeClinetData
@@ -118,14 +117,6 @@ public class UserApp_copy {
 		}
 		return clientData.toString(); // serviceCode=1&id=changyong&password=1234
 	}
-
-	// ID, PW 존재여부를 받아 text 출력
-//	private String loginResult(boolean loginCk) {
-//		if (loginCk)
-//			return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Successful Connection!\n";
-//		else
-//			return ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Connection failed!\n";
-//	}
 
 	private String mainTitle(String today) {
 		StringBuffer title = new StringBuffer();

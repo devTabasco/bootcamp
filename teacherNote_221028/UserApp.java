@@ -21,9 +21,8 @@ public class UserApp {
 		String[] accessInfo = new String[2];
 		boolean accessResult;
 		ServerController ctl = new ServerController();
-		TaskManagement taskManagement = null;
-		/* ClientData 생성 */
-		String[] itemName = {"id","pw"};
+		TaskManagement task = null;
+		String message = null;
 		
 		while(isLoop) {
 			
@@ -32,36 +31,55 @@ public class UserApp {
 				this.display(this.getAccessLayer(true, accessInfo[0]));
 				accessInfo[idx] = this.userInput(scanner);
 			}
-			this.display(this.getAccessLayer(false, null)); //print connecting...
+			this.display(this.getAccessLayer(false, null));
 			
+			/* ClientData 생성 */
+			String[] itemName = {"id", "password"};			
 			/* 서버에 로그인 정보 전달 */
-			accessResult = ctl.controller(this.makeClientData("1",itemName, accessInfo)).equals("1")?true:false; //"1" or "0";
+			accessResult = ctl.controller(this.makeClientData("1", itemName, accessInfo)).equals("1")? true: false;
 			
 			/* 서버로부터 받은 로그인 결과에 따른 화면 출력 */
 			this.display(this.accessResult(accessResult));
 			if(!accessResult) {
 				/* 로그인 실패 */
-				//n 누르면 종료
 				if(this.userInput(scanner).toUpperCase().equals("N")) {
 					isLoop = false;
-				}else { //n이 아닌 다른 문자 누르면 로그인정보 리셋
+				}else {
 					accessInfo[0] = null;
 					accessInfo[1] = null;
-				}
+				}	
 			}else {
 				/* 로그인 성공 */
+				accessInfo[1] = null;
 				while(isLoop) {
 					String menuSelection = new String();
-					this.display(mainTitle);
-					this.display(mainMenu);
-					menuSelection = this.userInput(scanner);
-				
+					while(true) {
+						this.display(mainTitle);
+						this.display(mainMenu);
+						this.display(message != null? "[Message : " + message + " ]\n": "");
+						
+						menuSelection = this.userInput(scanner);
+						/* 0~4 범위의 값이 아닌 경우 재입력 요구 */
+						if(this.isInteger(menuSelection)) {
+							if(this.isIntegerRange(Integer.parseInt(menuSelection), 0, 4)) {
+								break;
+							}else {
+								message = "메뉴는 0~4 범위내로 선택해주세요";
+							}
+						}else {
+							message = "메뉴는 숫자로 입력해주세요";
+						}
+					}
 				   /* 0번 선택시 서버에 로그아웃 통보 후 프로그램 종료 */
-					if(menuSelection.toUpperCase().equals("0")) { 
+					if(menuSelection.equals("0")) {
+						ctl.controller(this.makeClientData("-1", itemName, accessInfo));
 						isLoop = false;
-					}else if(menuSelection.toUpperCase().equals("1")) {
-						taskManagement = new TaskManagement();
-						taskManagement.taskController(11, accessInfo[0]);
+					}else{
+						/* TaskManagement Class Call */
+						task = new TaskManagement();
+						task.taskController(11, accessInfo[0]);
+						/* MakeCalendar Class Call */
+						
 					}
 				}
 			}
@@ -71,13 +89,35 @@ public class UserApp {
 		scanner.close();
 	}
 	
-	//makeClinetData
+	/* 정수 변환여부 체크 */
+	private boolean isInteger(String value) {
+		boolean isResult = true;
+		try {
+			Integer.parseInt(value);
+		}catch(Exception e){
+			isResult = false;// e.printStackTrace();
+		}
+		return isResult;
+	}
+
+	/* 문자 >> 정수 변환 */
+	private int convertToInteger(String value) {
+		return Integer.parseInt(value);
+	}
+
+	/* 정수의 범의 체크 */
+	private boolean isIntegerRange(int value, int starting, int last) {
+		return (value >= starting && value <= last)? true: false;
+	}
+	
 	private String makeClientData(String serviceCode, String[] item, String[] userData) {
 		StringBuffer clientData = new StringBuffer();
-		clientData.append("serviceCode="+serviceCode);
-		for(int i =0; i<userData.length;i++) {
-			clientData.append("&");
-			clientData.append(item[i] + "=" + userData[i]);
+		clientData.append("serviceCode=" + serviceCode);
+		for(int idx=0; idx<userData.length; idx++) {
+			if(userData[idx] != null) {
+				clientData.append("&");
+				clientData.append(item[idx] + "=" + userData[idx]);
+			}
 		}
 		return clientData.toString();
 	}
@@ -97,7 +137,6 @@ public class UserApp {
 		return title.toString();
 	}
 	
-	
 	private String getAccessLayer(boolean isItem, String accessCode) {
 		StringBuffer accessLayer = new StringBuffer();
 		
@@ -108,7 +147,7 @@ public class UserApp {
 			accessLayer.append("     + --------------------------------------------\n");
 			accessLayer.append("     +         " + ((accessCode!=null)? accessCode+"\t\t": ""));
 		}else {
-			accessLayer.append("     +++++++++++++++++++++++++++++++++++ Connecting...\n");
+			accessLayer.append("     +++++++++++++++++++++++++++++++++++ Connecting...");
 		}
 	    return accessLayer.toString();
 	}

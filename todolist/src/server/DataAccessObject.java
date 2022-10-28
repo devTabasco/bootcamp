@@ -1,6 +1,7 @@
 package server;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import server.beans.AccessHistoryBean;
@@ -14,7 +15,7 @@ public class DataAccessObject {
 			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
 
 	public DataAccessObject() {
-		
+
 	}
 
 	// member파일 전달
@@ -63,52 +64,66 @@ public class DataAccessObject {
 					e.printStackTrace();
 				}
 			}
-		}else if(fileIndex == 2) {
-			//read todo list
+		} else if (fileIndex == 2) {
+			// read todo list
 		}
 
 		return memberList;
 	}
-	
-	//getTodoList
+
+	// getTodoList
 	public ArrayList<TodoBean> getToDoList(TodoBean searchInfo) {
 		ArrayList<TodoBean> dayList = null;
 		TodoBean toDo = null;
 		String line;
 		BufferedReader buffer = null;
-		int date, recordCount=1;
+		int date, recordCount = 1;
 		int[] dateRange = new int[2];
-		
+
+		LocalDate userDate = LocalDate.of(Integer.parseInt(searchInfo.getStartDate().substring(0, 4)),
+				Integer.parseInt(searchInfo.getStartDate().substring(4)), 1);
+
 		try {
 			buffer = new BufferedReader(new FileReader(new File(fileInfo[searchInfo.getFileIndex()])));
-			while((line=buffer.readLine()) != null) {
-				if(recordCount == 1) dayList = new ArrayList<TodoBean>();
-				
+			while ((line = buffer.readLine()) != null) {
+				if (recordCount == 1)
+					dayList = new ArrayList<TodoBean>();
+
 				String[] record = line.split(",");
 				date = Integer.parseInt(searchInfo.getStartDate());
 				dateRange[0] = Integer.parseInt(record[1].substring(0, 8));
 				dateRange[1] = Integer.parseInt(record[2].substring(0, 8));
-				
-				if(date > dateRange[0]/100) dateRange[0] = Integer.parseInt(date+"01");
-				if(date < dateRange[1]/100) dateRange[1] = Integer.parseInt(date+"30");
-				
-				for(int idx=dateRange[0]; idx<=dateRange[1]; idx++) {
+
+				if (date > dateRange[0] / 100)
+					dateRange[0] = Integer.parseInt(date + "01");
+				if (date < dateRange[1] / 100)
+					dateRange[1] = Integer.parseInt(date + "" + userDate.lengthOfMonth());
+
+				for (int idx = dateRange[0]; idx <= dateRange[1]; idx++) {
+					
 					toDo = new TodoBean();
-					toDo.setStartDate(idx+"");
+					toDo.setStartDate(idx + "");
 					dayList.add(toDo);
 				}
-				
 				recordCount++;
+
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (buffer != null)
+					buffer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
+
 		return dayList;
 	}
-	
 
 	// 접속기록 작성
 	public boolean writeAccessHistory(AccessHistoryBean accessInfo) {

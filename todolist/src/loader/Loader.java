@@ -8,7 +8,6 @@ public class Loader {
 	public static void main(String[] args) {
 //		new UserApp();
 		new UserApp_copy();
-
 	}
 
 }

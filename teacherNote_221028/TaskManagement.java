@@ -35,10 +35,11 @@ public class TaskManagement {
 
 	/* 특정 달의 Task Calendar 생성하기 */
 	private void makeTaskCalendarCtl(Object result, String accessCode) {
-		//getTaskData
-		ServerController serverController = new ServerController();
-		String pattern = "yyyMM";
-		System.out.println(serverController.controller("serviceCode=9&accessCode="+accessCode+"&date="+LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern))));
+		ServerController server = new ServerController();
+		String pattern = "yyyyMM";
+		System.out.println(
+				server.controller("serviceCode=9&accessCode="+ accessCode + 
+						"&date=" + LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern))));
 	}
 	
 	/* 등록된 모든 할일 리스트 가져오기 */

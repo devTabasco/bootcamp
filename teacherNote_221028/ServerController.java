@@ -16,7 +16,7 @@ public class ServerController {
 			result = auth.accessCtl(clientData)? "1": "0";
 		}else if(serviceCode.equals("-1")) {
 			auth = new Auth();
-			auth.logoutCtl(clientData);
+			auth.accessOut(clientData);
 			result = "로그아웃 완료";
 		}else if(serviceCode.equals("9")) {
 			task = new TaskManager();
