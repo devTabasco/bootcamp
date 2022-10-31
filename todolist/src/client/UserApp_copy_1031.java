@@ -8,9 +8,9 @@ import java.util.Scanner;
 import server.ServerController;
 import server.TaskManager;
 
-public class UserApp {
+public class UserApp_copy_1031 {
 
-	public UserApp() {
+	public UserApp_copy_1031() {
 		frontController();
 	}
 

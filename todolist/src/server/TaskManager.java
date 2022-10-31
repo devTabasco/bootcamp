@@ -19,7 +19,6 @@ public class TaskManager {
 	/* 특정 계정의 특정 월의 할일이 등록되어 있는 날짜 리스트 가져오기 */
 	public String getTodoDateCtl(String clientData) {
 		DataAccessObject dao = new DataAccessObject();
-		ArrayList<TodoBean> toDoList;
 		// 1. clientData : serviceCode=9&accessCode=hoonzzang&date=202210 --> Bean Data
 		// 2. todo --> Dao.getToDoList --> ArrayList<ToDoBean>
 //		System.out.println(this.convertServerData(dao.getToDoList((TodoBean) this.setBean(clientData))));
@@ -37,7 +36,11 @@ public class TaskManager {
 		}
 
 		/* 마지막으로 추가된 항목 삭제 */
-		serverData.charAt((serverData.length()-1));
+		if(serverData.length() != 0){
+			serverData.charAt((serverData.length()-1));
+		}else {
+			
+		}
 		
 		
 		/* 중복값 제거 */

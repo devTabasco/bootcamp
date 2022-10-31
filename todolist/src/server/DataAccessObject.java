@@ -72,7 +72,7 @@ public class DataAccessObject {
 	}
 
 	// getTodoList
-	public ArrayList<TodoBean> getToDoList(TodoBean searchInfo) {
+	public ArrayList<TodoBean> getToDoList(TodoBean searchInfo) { //fileIndex, accessCode, StartDate(날짜 전부 계산해서) 넘겨받음
 		ArrayList<TodoBean> dayList = null;
 		TodoBean toDo = null;
 		String line;
@@ -90,6 +90,12 @@ public class DataAccessObject {
 					dayList = new ArrayList<TodoBean>();
 
 				String[] record = line.split(",");
+				/* 계정별로 추려오기 */
+				
+				if(searchInfo.getAccessCode().equals(record[0])){
+					
+				
+				/* 계정별로 추려오기 */
 				date = Integer.parseInt(searchInfo.getStartDate());
 				dateRange[0] = Integer.parseInt(record[1].substring(0, 8));
 				dateRange[1] = Integer.parseInt(record[2].substring(0, 8));
@@ -106,6 +112,7 @@ public class DataAccessObject {
 					dayList.add(toDo);
 				}
 				recordCount++;
+				}
 
 			}
 		} catch (FileNotFoundException e) {

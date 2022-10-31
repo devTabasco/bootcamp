@@ -8,9 +8,9 @@ import java.util.Scanner;
 import server.ServerController;
 import server.TaskManager;
 
-public class UserApp {
+public class UserApp_real {
 
-	public UserApp() {
+	public UserApp_real() {
 		frontController();
 	}
 
@@ -173,6 +173,7 @@ public class UserApp {
 
 								// 입력 숫자 확인(이번달 안에 있는 건지)
 								System.out.println("Step 2 호출");
+								//리스트 가져오기
 								this.display(taskManagement.taskController(12, accessInfo[0], addMonth).toString());
 
 								// Q누르면 빠져나가기
