@@ -27,11 +27,11 @@ public class TaskManagement {
 		return result;
 	}
 
-	public Object taskController(int selection, String accessCode, int addMonth) {
+	public Object taskController(int selection, String accessCode, int addMonth, String menuSelection) {
 		Object result = null;
 		switch (selection) {
 		case 11:
-			result = this.makeTaskCalendarCtl(accessCode, addMonth);
+			result = this.makeTaskCalendarCtl(accessCode, addMonth, menuSelection);
 			break;
 		case 12:
 			this.getTaskListCtl(accessCode);
@@ -51,13 +51,13 @@ public class TaskManagement {
 	}
 
 	/* 특정 달의 Task Calendar 생성하기 */
-	private Object makeTaskCalendarCtl(String accessCode, int addMonth) {
+	private Object makeTaskCalendarCtl(String accessCode, int addMonth, String menuSelection) {
 		// getTaskData
 		serverController = new ServerController();
 		String pattern = "yyyyMM";
 		LocalDate today = LocalDate.now().plusMonths(addMonth);
 		String[] taskDays = this.getTaskDays(serverController.controller("serviceCode=9&accessCode=" + accessCode
-				+ "&date=" + today.format(DateTimeFormatter.ofPattern(pattern))));
+				+ "&date=" + today.format(DateTimeFormatter.ofPattern(pattern)) + "&" + menuSelection));
 
 //		System.out.println(serverController.controller("serviceCode=9&accessCode=" + accessCode + "&date="
 //				+ LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern))));

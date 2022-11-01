@@ -19,6 +19,8 @@ public class TaskManager {
 	/* 특정 계정의 특정 월의 할일이 등록되어 있는 날짜 리스트 가져오기 */
 	public String getTodoDateCtl(String clientData) {
 		DataAccessObject dao = new DataAccessObject();
+//		System.out.println(clientData);
+		//serviceCode=9&accessCode=changyong&date=202211&status=null&isEnable=null&isAll=1
 		// 1. clientData : serviceCode=9&accessCode=hoonzzang&date=202210 --> Bean Data
 		// 2. todo --> Dao.getToDoList --> ArrayList<ToDoBean>
 //		System.out.println(this.convertServerData(dao.getToDoList((TodoBean) this.setBean(clientData))));
@@ -96,10 +98,16 @@ public class TaskManager {
 		switch (splitData[0].split("=")[1]) {
 		case "9":
 			/* serviceCode=9&accessCode=changyong&date=202210 */
+			//serviceCode=9&accessCode=changyong&date=202211&status=null&isEnable=null&isAll=1
 			object = new TodoBean();
 			((TodoBean) object).setFileIndex(2);
 			((TodoBean) object).setAccessCode(splitData[1].split("=")[1]);
 			((TodoBean) object).setStartDate(splitData[2].split("=")[1]);
+			((TodoBean) object).setStatus(splitData[3].split("=")[1]);
+			((TodoBean) object).setIsEnable(splitData[4].split("=")[1]);
+			((TodoBean) object).setIsAll(splitData[5].split("=")[1].equals("1")?true:false);
+			
+//			System.out.println(((TodoBean) object).isAll());
 			break;
 			
 		case "12":

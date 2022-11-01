@@ -91,8 +91,27 @@ public class DataAccessObject {
 
 				String[] record = line.split(",");
 				/* 계정별로 추려오기 */
+				if(!searchInfo.getAccessCode().equals(record[0])) continue;
 				
-				if(searchInfo.getAccessCode().equals(record[0])){
+//				System.out.println(searchInfo.isAll());
+//				System.out.println(!searchInfo.getIsEnable().equals("0"));
+				
+//				if(!searchInfo.getIsEnable().equals(record[5])) continue;
+//				if(!searchInfo.getIsEnable().equals("0")) {
+//					if(!searchInfo.isAll()) { // All condition 확인
+//						if(!searchInfo.getStatus().equals(record[4])) continue;
+//					}
+//				}
+				
+				if(searchInfo.getIsEnable().equals("0")) {
+					if(!record[5].equals("0")) continue;
+				}
+				
+				if(!searchInfo.isAll()) {
+					if(!searchInfo.getIsEnable().equals(record[5])) continue;
+					if(!searchInfo.getStatus().equals(record[4])) continue;
+				}
+				//왜 달력에는 휴지통이 안지워질까......
 					
 				
 				/* 계정별로 추려오기 */
@@ -112,7 +131,6 @@ public class DataAccessObject {
 					dayList.add(toDo);
 				}
 				recordCount++;
-				}
 
 			}
 		} catch (FileNotFoundException e) {

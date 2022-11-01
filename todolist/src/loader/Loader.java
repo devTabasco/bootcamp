@@ -2,6 +2,7 @@ package loader;
 import client.UserApp;
 
 import client.UserApp_real;
+import client.UserApp_copy;
 
 public class Loader {
 
