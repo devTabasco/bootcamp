@@ -1,5 +1,6 @@
 package client;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -61,7 +62,7 @@ public class UserApp_real {
 					while (true) {
 						this.display(mainTitle);
 						this.display(mainMenu);
-						this.display(message != null ? "[Message : " + message + " ]\n" : "");
+						this.display(message != null ? "\n[Message : " + message + " ]\n" : "");
 
 						menuSelection = this.userInput(sc);
 						/* 0~4 범위의 값이 아닌 경우 재입력 요구 */
@@ -87,6 +88,7 @@ public class UserApp_real {
 						if (menuSelection.equals("1")) {
 							taskManagement = new TaskManagement();
 							String[] userInput = new String[3];
+							String[] selectMonth = new String[3];
 							int addMonth = 0;
 
 							int step = 0;
@@ -102,11 +104,14 @@ public class UserApp_real {
 									this.display(taskManagement.taskController(11, accessInfo[0], addMonth).toString());
 									if (userInput[step] == null) {
 										this.printSelectMenu(step);
-										userInput[step] = this.userInput(sc);
+										userInput[step] = this.userInput(sc); // 사용자입력
+										selectMonth[step] = (LocalDate.now().plusMonths(addMonth).getYear() + "") + 
+												((LocalDate.now().plusMonths(addMonth).getMonthValue()<10)?"0"+(LocalDate.now().plusMonths(addMonth).getMonthValue()):(LocalDate.now().plusMonths(addMonth).getMonthValue()) + "");
+										
 										if (this.isBreak(userInput[step]))
 											break;
 										if (this.isReStart(userInput[step])) {
-											if (this.isMonthNext(userInput[step]) == true) {
+											if (this.isMonthNext(userInput[step])) {
 												addMonth++;
 											} else {
 												addMonth--;
@@ -114,67 +119,34 @@ public class UserApp_real {
 											userInput[step] = null;
 											continue;
 										}
+										
+										//사용자 입력 오류 거르기(22.11.01 오전추가)
+										if(this.isInteger(userInput[step])) {
+											if(!this.isIntegerRange(this.convertToInteger(userInput[step]), 1, this.getLengthOfMonth(addMonth))) {
+												this.display("\n[Message : 해당 월의 날짜를 입력해주세요.  ]\n");
+												userInput[step] = null;
+												continue;
+											}
+										}else {
+											if(step==2 && userInput[2].equals("T")) {
+												step++;
+												break;
+											}
+											
+											userInput[step] = null;
+											this.display("\n[Message : 숫자, P, N 중에 입력해주세요.  ]\n");
+											continue;
+										}
+										
 										step++;
-
 									}
 								}
-//								if (userInput[0] == null) {
-//									System.out.print("\t+++++++++++++++++++++++++++++++++++++ Start Date : ");
-//									userInput[0] = this.userInput(sc);
-//									if (this.isBreak(userInput[0]))
-//										break;
-//									if (this.isReStart(userInput[0])) {
-//										if (this.isMonthNext(userInput[0]) == true) {
-//											addMonth++;
-//										} else {
-//											addMonth--;
-//										}
-//										userInput[0] = null;
-//										continue;
-//									}
-//
-//								}
-//
-//								// End Date
-//								if (userInput[1] == null) {
-//									System.out.print("\t+++++++++++++++++++++++++++++++++++++ End Date : ");
-//									userInput[1] = this.userInput(sc);
-//									if (this.isBreak(userInput[1]))
-//										break;
-//									if (this.isReStart(userInput[1])) {
-//										if (this.isMonthNext(userInput[1]) == true) {
-//											addMonth++;
-//										} else {
-//											addMonth--;
-//										}
-//										userInput[1] = null;
-//										continue;
-//									}
-//
-//								}
-//
-//								// List type select
-//								if (userInput[2] == null) {
-//									System.out.print("\t+++++++++++++++++++++++++++++++++++++ 유형 선택해라 : ");
-//									userInput[2] = this.userInput(sc);
-//									if (this.isBreak(userInput[2]))
-//										break;
-//									if (this.isReStart(userInput[2])) {
-//										if (this.isMonthNext(userInput[2]) == true) {
-//											addMonth++;
-//										} else {
-//											addMonth--;
-//										}
-//										userInput[2] = null;
-//										continue;
-//									}
-//
-//								}
 
 								// 입력 숫자 확인(이번달 안에 있는 건지)
-								System.out.println("Step 2 호출");
+//								System.out.println("Step 2 호출");
 								//리스트 가져오기
-								this.display(taskManagement.taskController(12, accessInfo[0], addMonth).toString());
+								this.display(taskManagement.taskController(this.makeClientData(userInput,selectMonth)).toString());
+								
 
 								// Q누르면 빠져나가기
 								// P누르면 이전달 출력
@@ -193,6 +165,21 @@ public class UserApp_real {
 
 		this.display("\n\n  x-x-x-x-x-x-x-x-x-x- 프로그램을 종료합니다 -x-x-x-x-x-x-x-x-x-x");
 		sc.close();
+	}
+	
+	private String makeClientData(String[] userInput,String[] selectMonth) {
+		//serviceCode=12&accessCode=changyong&startDate=12&endDate=12&status=0&isEnable=0&isAll=1
+		
+		for(int i = 0;i<userInput.length;i++) {
+			if(userInput[i].length() == 1) {
+				userInput[i] = "0"+userInput[i];
+			}
+			
+		}
+		
+		return "serviceCode=12&accessCode=changyong&startDate=" + selectMonth[0] + userInput[0] + "&endDate=" + selectMonth[1] + userInput[1] 
+				+ "&status=1&isEnable=1&isAll=1";
+//				+ userInput[2]; //추후 유형 추가
 	}
 	
 	private void printSelectMenu(int step) {
@@ -338,6 +325,11 @@ public class UserApp_real {
 	/* 화면 출력 */
 	private void display(String text) {
 		System.out.print(text);
+	}
+	
+	/* 선택한 달의 일수 구하기 */
+	private int getLengthOfMonth(int addMonth) {
+		return LocalDate.now().plusMonths(addMonth).lengthOfMonth();
 	}
 
 }

@@ -6,10 +6,17 @@ public class TodoBean {
 	private String startDate;
 	private String endDate;
 	private String contents;
-	private char status;
-	private char isEnable;
+	private String status;
+	private String isEnable;
+	private boolean isAll;
 	
 	
+	public boolean isAll() {
+		return isAll;
+	}
+	public void setIsAll(Boolean isAll) {
+		this.isAll = isAll;
+	}
 	public int getFileIndex() {
 		return fileIndex;
 	}
@@ -40,16 +47,16 @@ public class TodoBean {
 	public void setContents(String contents) {
 		this.contents = contents;
 	}
-	public char getStatus() {
+	public String getStatus() {
 		return status;
 	}
-	public void setStatus(char status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
-	public char getIsEnable() {
+	public String getIsEnable() {
 		return isEnable;
 	}
-	public void setIsEnable(char isEnable) {
+	public void setIsEnable(String isEnable) {
 		this.isEnable = isEnable;
 	}
 	public String getComment() {

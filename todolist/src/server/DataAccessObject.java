@@ -10,9 +10,9 @@ import server.beans.TodoBean;
 
 //To access database
 public class DataAccessObject {
-	private String[] fileInfo = { "C:\\java\\data\\todolist\\src\\database\\MEMBERS.txt",
-			"C:\\java\\data\\todolist\\src\\database\\ACCESSHISTORY.txt",
-			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
+	private String[] fileInfo = { "/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/MEMBERS.txt",
+			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/ACCESSHISTORY.txt",
+			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/TODO.txt" };
 
 	public DataAccessObject() {
 
@@ -130,6 +130,91 @@ public class DataAccessObject {
 		}
 
 		return dayList;
+	}
+	
+	//특정 기간의 할일 목록 가져오기
+	public ArrayList<TodoBean> getList(TodoBean searchInfo) {
+		ArrayList<TodoBean> todoList = null;
+		String line;
+		String[] record;
+		BufferedReader reader = null;
+		TodoBean todoBean;
+		int count = 1;
+		try {
+			reader = new BufferedReader(new FileReader(new File(fileInfo[searchInfo.getFileIndex()])));
+			
+			while((line = reader.readLine()) != null) {
+				if (count == 1) todoList = new ArrayList<TodoBean>();
+				record = line.split(",");
+				
+				//조건 적용 1. accessCode 2.startDate & endDate 3.visibleType
+				if(!searchInfo.getAccessCode().equals(record[0])) continue;
+				if(!this.isCheckRange(record[1].substring(0,8),record[2].substring(0,8),searchInfo.getStartDate(),searchInfo.getEndDate())) continue;
+				
+				//changyong,202210271100,202210271100,코딩하기,1,1,null
+				
+				//1. all condition(status = 0,1,-1 / isEnable = 1)
+				//2. preparing(status = 0, isEnable = 1)
+				//3. in progress(status=1,isEnable=1)
+				//4. done(status=-1, isEnable = 1)
+				//5. temporary deletion(isEnable = 0)
+				
+				//조건에 따른 데이터 분기(status & isEnable)
+				if(!searchInfo.getIsEnable().equals(record[5])) continue;
+				if(!searchInfo.getIsEnable().equals("0")) {
+					if(!searchInfo.isAll()) { // All condition 확인
+						if(!searchInfo.getStatus().equals(record[4])) continue;
+					}
+				}
+								
+				//데이터 수집
+				todoBean = new TodoBean();
+				todoBean.setStartDate(record[1]);
+				todoBean.setEndDate(record[2]);
+				todoBean.setContents(record[3]);
+				todoBean.setStatus(record[4]);
+				todoBean.setIsEnable(record[5]);
+				todoBean.setComment(record[6]);
+				
+				todoList.add(todoBean);
+				
+				count++;
+			}
+			
+		} catch (FileNotFoundException e) {
+			System.out.println("파일 없음");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("입출력 오류");
+			e.printStackTrace();
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return todoList;
+	}
+	
+	private boolean isCheckRange(String startDay, String endDay, String compareStartDay, String compareEndDay) {
+		int check = 0;
+		
+		for(int i = Integer.parseInt(startDay);i<=Integer.parseInt(endDay);i++) {
+			if(Integer.parseInt(compareStartDay) == i ) {
+				check++;
+			}
+			if(Integer.parseInt(compareEndDay) == i ) {
+				check++;
+			}
+			if(Integer.parseInt(compareStartDay)<Integer.parseInt(startDay) && Integer.parseInt(compareEndDay) > Integer.parseInt(endDay)) {
+				check++;
+			}
+			
+		}
+		
+		return check>=1;
 	}
 
 	// 접속기록 작성

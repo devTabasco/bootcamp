@@ -24,6 +24,37 @@ public class TaskManager {
 //		System.out.println(this.convertServerData(dao.getToDoList((TodoBean) this.setBean(clientData))));
 		return this.convertServerData(dao.getToDoList((TodoBean) this.setBean(clientData)));
 	}
+	
+	public String getTodoListCtl(String clientData) {
+		DataAccessObject dao = new DataAccessObject();
+		// 1. clientData : serviceCode=12&accessCode=changyong&startDate=12&endDate=12&status=0&isEnable=0&isAll=1
+		// 2. todo --> Dao.getToDoList --> ArrayList<ToDoBean>
+		
+//		System.out.println(clientData);
+//		System.out.println(dao.getList((TodoBean)this.setBean(clientData)).size());
+		return this.convertListData(dao.getList((TodoBean)this.setBean(clientData)));
+	}
+	
+	private String convertListData(ArrayList<TodoBean> list) {
+		StringBuffer serverData = new StringBuffer();
+		
+		for(TodoBean todo : list) {
+			serverData.append(todo.getStartDate() + ",");
+			serverData.append(todo.getEndDate() + ",");
+			serverData.append(todo.getContents() + ",");
+			serverData.append(todo.getStatus() + ",");
+			serverData.append(todo.getIsEnable() + ",");
+			serverData.append(todo.getComment() + ";");
+		}
+		
+		/* 마지막으로 추가된 항목 삭제 */
+		if(serverData.length() != 0){
+			serverData.charAt((serverData.length()-1));
+		}
+		
+//		System.out.println(serverData.toString());
+		return serverData.toString();
+	}
 
 	private String convertServerData(ArrayList<TodoBean> list) {
 		int count = 0;
@@ -56,9 +87,6 @@ public class TaskManager {
 			str.append(resultArr[i]);
 		}
 		
-//		System.out.println(str.toString());
-
-//		return serverData.toString();
 		return str.toString();
 	}
 
@@ -72,6 +100,18 @@ public class TaskManager {
 			((TodoBean) object).setFileIndex(2);
 			((TodoBean) object).setAccessCode(splitData[1].split("=")[1]);
 			((TodoBean) object).setStartDate(splitData[2].split("=")[1]);
+			break;
+			
+		case "12":
+			//serviceCode=12&accessCode=changyong&startDate=2022101&endDate=20221031&status=1&isEnable=1&isAll=1
+			object = new TodoBean();
+			((TodoBean) object).setFileIndex(2);
+			((TodoBean) object).setAccessCode(splitData[1].split("=")[1]);
+			((TodoBean) object).setStartDate(splitData[2].split("=")[1]);
+			((TodoBean) object).setEndDate(splitData[3].split("=")[1]);
+			((TodoBean) object).setStatus(splitData[4].split("=")[1]);
+			((TodoBean) object).setIsEnable(splitData[5].split("=")[1]);
+			((TodoBean) object).setIsAll((splitData[6].split("=")[1].equals("1")?true:false));
 			break;
 		}
 

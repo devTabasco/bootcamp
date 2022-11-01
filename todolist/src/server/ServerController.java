@@ -21,6 +21,9 @@ public class ServerController {
 		}else if(serviceCode.equals("9")) {
 			task = new TaskManager();
 			result = task.getTodoDateCtl(clientData);
+		}else if(serviceCode.equals("12")) {
+			task = new TaskManager();
+			result = task.getTodoListCtl(clientData);
 		}
 		
 		return result; 
