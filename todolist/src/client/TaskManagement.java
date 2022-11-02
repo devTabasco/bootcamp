@@ -22,7 +22,6 @@ public class TaskManagement {
 			result = this.getTaskListCtl(clientData);
 			break;
 		case "13":
-			//serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
 			result = this.getTaskListCtl(clientData);
 		}
 		
@@ -108,7 +107,11 @@ public class TaskManagement {
 				todoList.append("\t\t"+todo[2]+"\n");
 			}
 			todoList.append("\t0.돌아가기\n");
-			todoList.append("------------------------------------Select : \n");
+			todoList.append("-------------------------수정할 일정 번호를 선택해주세요 : ");
+			for(int i=0;i<record.length;i++) {
+				todoList.append(";");
+				todoList.append(record[i]);
+			}
 			return todoList.toString();
 	}
 	

@@ -10,9 +10,15 @@ import server.beans.TodoBean;
 
 //To access database
 public class DataAccessObject {
-	private String[] fileInfo = { "C:\\java\\data\\todolist\\src\\database\\MEMBERS.txt",
-			"C:\\java\\data\\todolist\\src\\database\\ACCESSHISTORY.txt",
-			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
+	
+	
+	private String[] fileInfo = { "/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/MEMBERS.txt",
+			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/ACCESSHISTORY.txt",
+			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/TODO.txt" };
+	
+//	private String[] fileInfo = { "C:\\java\\data\\todolist\\src\\database\\MEMBERS.txt",
+//			"C:\\java\\data\\todolist\\src\\database\\ACCESSHISTORY.txt",
+//			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
 
 	public DataAccessObject() {
 
