@@ -10,9 +10,9 @@ import server.beans.TodoBean;
 
 //To access database
 public class DataAccessObject {
-	private String[] fileInfo = { "/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/MEMBERS.txt",
-			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/ACCESSHISTORY.txt",
-			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/TODO.txt" };
+	private String[] fileInfo = { "C:\\java\\data\\todolist\\src\\database\\MEMBERS.txt",
+			"C:\\java\\data\\todolist\\src\\database\\ACCESSHISTORY.txt",
+			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
 
 	public DataAccessObject() {
 
@@ -72,7 +72,7 @@ public class DataAccessObject {
 	}
 
 	// getTodoList
-	public ArrayList<TodoBean> getToDoList(TodoBean searchInfo) { //fileIndex, accessCode, StartDate(날짜 전부 계산해서) 넘겨받음
+	public ArrayList<TodoBean> getToDoList(TodoBean searchInfo) { // fileIndex, accessCode, StartDate(날짜 전부 계산해서) 넘겨받음
 		ArrayList<TodoBean> dayList = null;
 		TodoBean toDo = null;
 		String line;
@@ -91,29 +91,36 @@ public class DataAccessObject {
 
 				String[] record = line.split(",");
 				/* 계정별로 추려오기 */
-				if(!searchInfo.getAccessCode().equals(record[0])) continue;
-				
+				if (!searchInfo.getAccessCode().equals(record[0]))
+					continue;
+
 //				System.out.println(searchInfo.isAll());
 //				System.out.println(!searchInfo.getIsEnable().equals("0"));
-				
+
 //				if(!searchInfo.getIsEnable().equals(record[5])) continue;
 //				if(!searchInfo.getIsEnable().equals("0")) {
 //					if(!searchInfo.isAll()) { // All condition 확인
 //						if(!searchInfo.getStatus().equals(record[4])) continue;
 //					}
 //				}
-				
-				if(searchInfo.getIsEnable().equals("0")) {
-					if(!record[5].equals("0")) continue;
+
+				if (searchInfo.getServiceCode().equals("9")) {
+					switch (searchInfo.getIsEnable()) {
+					case "0": // 휴지통
+						if (!record[5].equals("0"))
+							continue;
+						break;
+
+					case "1": // 활성
+						if (record[5].equals("0"))
+							continue;
+						if (!(searchInfo.isAll())) {
+							if (!searchInfo.getStatus().equals(record[4]))
+								continue;
+						}
+					}
 				}
-				
-				if(!searchInfo.isAll()) {
-					if(!searchInfo.getIsEnable().equals(record[5])) continue;
-					if(!searchInfo.getStatus().equals(record[4])) continue;
-				}
-				//왜 달력에는 휴지통이 안지워질까......
-					
-				
+
 				/* 계정별로 추려오기 */
 				date = Integer.parseInt(searchInfo.getStartDate());
 				dateRange[0] = Integer.parseInt(record[1].substring(0, 8));
@@ -125,7 +132,7 @@ public class DataAccessObject {
 					dateRange[1] = Integer.parseInt(date + "" + userDate.lengthOfMonth());
 
 				for (int idx = dateRange[0]; idx <= dateRange[1]; idx++) {
-					
+
 					toDo = new TodoBean();
 					toDo.setStartDate(idx + "");
 					dayList.add(toDo);
@@ -149,9 +156,11 @@ public class DataAccessObject {
 
 		return dayList;
 	}
-	
-	//특정 기간의 할일 목록 가져오기
+
+	// 특정 기간의 할일 목록 가져오기
 	public ArrayList<TodoBean> getList(TodoBean searchInfo) {
+		// 수정(13)의 경우
+		// serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
 		ArrayList<TodoBean> todoList = null;
 		String line;
 		String[] record;
@@ -160,32 +169,42 @@ public class DataAccessObject {
 		int count = 1;
 		try {
 			reader = new BufferedReader(new FileReader(new File(fileInfo[searchInfo.getFileIndex()])));
-			
-			while((line = reader.readLine()) != null) {
-				if (count == 1) todoList = new ArrayList<TodoBean>();
+
+			while ((line = reader.readLine()) != null) {
+				if (count == 1)
+					todoList = new ArrayList<TodoBean>();
 				record = line.split(",");
-				
-				//조건 적용 1. accessCode 2.startDate & endDate 3.visibleType
-				if(!searchInfo.getAccessCode().equals(record[0])) continue;
-				if(!this.isCheckRange(record[1].substring(0,8),record[2].substring(0,8),searchInfo.getStartDate(),searchInfo.getEndDate())) continue;
-				
-				//changyong,202210271100,202210271100,코딩하기,1,1,null
-				
-				//1. all condition(status = 0,1,-1 / isEnable = 1)
-				//2. preparing(status = 0, isEnable = 1)
-				//3. in progress(status=1,isEnable=1)
-				//4. done(status=-1, isEnable = 1)
-				//5. temporary deletion(isEnable = 0)
-				
-				//조건에 따른 데이터 분기(status & isEnable)
-				if(!searchInfo.getIsEnable().equals(record[5])) continue;
-				if(!searchInfo.getIsEnable().equals("0")) {
-					if(!searchInfo.isAll()) { // All condition 확인
-						if(!searchInfo.getStatus().equals(record[4])) continue;
+
+				// 조건 적용 1. accessCode 2.startDate & endDate 3.visibleType
+				if (!searchInfo.getAccessCode().equals(record[0])) {
+					continue;
+				}
+				if (!this.isCheckRange(record[1].substring(0, 8), record[2].substring(0, 8), searchInfo.getStartDate(),
+						searchInfo.getEndDate())) {
+					continue;
+				}
+
+				if (searchInfo.getServiceCode().equals("12")) {
+					switch (searchInfo.getIsEnable()) {
+					case "0": // 휴지통
+						if (!record[5].equals("0"))
+							continue;
+						break;
+
+					case "1": // 활성
+						if (record[5].equals("0"))
+							continue;
+						if (!(searchInfo.isAll())) {
+							if (!searchInfo.getStatus().equals(record[4]))
+								continue;
+						}
+					default:
+
+						break;
 					}
 				}
-								
-				//데이터 수집
+				// serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
+				// 데이터 수집
 				todoBean = new TodoBean();
 				todoBean.setStartDate(record[1]);
 				todoBean.setEndDate(record[2]);
@@ -193,12 +212,12 @@ public class DataAccessObject {
 				todoBean.setStatus(record[4]);
 				todoBean.setIsEnable(record[5]);
 				todoBean.setComment(record[6]);
-				
+
 				todoList.add(todoBean);
-				
+
 				count++;
 			}
-			
+
 		} catch (FileNotFoundException e) {
 			System.out.println("파일 없음");
 			e.printStackTrace();
@@ -212,27 +231,28 @@ public class DataAccessObject {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return todoList;
 	}
-	
+
 	private boolean isCheckRange(String startDay, String endDay, String compareStartDay, String compareEndDay) {
 		int check = 0;
-		
-		for(int i = Integer.parseInt(startDay);i<=Integer.parseInt(endDay);i++) {
-			if(Integer.parseInt(compareStartDay) == i ) {
+
+		for (int i = Integer.parseInt(startDay); i <= Integer.parseInt(endDay); i++) {
+			if (Integer.parseInt(compareStartDay) == i) {
 				check++;
 			}
-			if(Integer.parseInt(compareEndDay) == i ) {
+			if (Integer.parseInt(compareEndDay) == i) {
 				check++;
 			}
-			if(Integer.parseInt(compareStartDay)<Integer.parseInt(startDay) && Integer.parseInt(compareEndDay) > Integer.parseInt(endDay)) {
+			if (Integer.parseInt(compareStartDay) < Integer.parseInt(startDay)
+					&& Integer.parseInt(compareEndDay) > Integer.parseInt(endDay)) {
 				check++;
 			}
-			
+
 		}
-		
-		return check>=1;
+
+		return check >= 1;
 	}
 
 	// 접속기록 작성
@@ -244,6 +264,31 @@ public class DataAccessObject {
 			bufferedWriter = new BufferedWriter(new FileWriter(new File(fileInfo[accessInfo.getFileIndex()]), true));// changyong,20221026151037,1
 			bufferedWriter.write(accessInfo.getAccessCode() + "," + accessInfo.getAccessDate() + ","
 					+ accessInfo.getAccessType() + "\n");
+			bufferedWriter.flush(); // write로 담은 내용 출력 후, 버퍼를 비움.
+
+			result = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				bufferedWriter.close(); // bufferedWriter close.
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return result;
+	}
+
+	public boolean writeTodoList(TodoBean accessInfo) {
+		boolean result = false;
+		BufferedWriter bufferedWriter = null;
+
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(new File(fileInfo[accessInfo.getFileIndex()]), true));// changyong,20221026151037,1
+			bufferedWriter.write(accessInfo.getAccessCode() + "," + accessInfo.getStartDate() + ","
+					+ accessInfo.getEndDate() + "," + accessInfo.getContents() + "," + accessInfo.getStatus() + ","
+					+ accessInfo.getIsEnable() + "," + accessInfo.getComment() + "\n");
 			bufferedWriter.flush(); // write로 담은 내용 출력 후, 버퍼를 비움.
 
 			result = true;

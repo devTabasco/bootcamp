@@ -9,8 +9,15 @@ public class TodoBean {
 	private String status;
 	private String isEnable;
 	private boolean isAll;
+	private String serviceCode;
 	
 	
+	public String getServiceCode() {
+		return serviceCode;
+	}
+	public void setServiceCode(String serviceCode) {
+		this.serviceCode = serviceCode;
+	}
 	public boolean isAll() {
 		return isAll;
 	}

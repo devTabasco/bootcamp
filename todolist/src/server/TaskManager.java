@@ -3,11 +3,6 @@ package server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-
-import javax.management.StringValueExp;
-
-import server.beans.AccessHistoryBean;
-import server.beans.MemberBean;
 import server.beans.TodoBean;
 
 public class TaskManager {
@@ -34,6 +29,14 @@ public class TaskManager {
 		
 //		System.out.println(clientData);
 //		System.out.println(dao.getList((TodoBean)this.setBean(clientData)).size());
+		return this.convertListData(dao.getList((TodoBean)this.setBean(clientData)));
+	}
+	
+	public String getModifyListCtl(String clientData) {
+		DataAccessObject dao = new DataAccessObject();
+		//1. clientData : serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
+		
+		//202211011100,202211301000,쓰레기통테스트,1,0,null;202211021100,202211051000,코딩하기,1,1,null;
 		return this.convertListData(dao.getList((TodoBean)this.setBean(clientData)));
 	}
 	
@@ -93,6 +96,7 @@ public class TaskManager {
 	}
 
 	private Object setBean(String clientData) {
+//		System.out.println(clientData);
 		Object object = null;
 		String[] splitData = clientData.split("&");
 		switch (splitData[0].split("=")[1]) {
@@ -101,6 +105,7 @@ public class TaskManager {
 			//serviceCode=9&accessCode=changyong&date=202211&status=null&isEnable=null&isAll=1
 			object = new TodoBean();
 			((TodoBean) object).setFileIndex(2);
+			((TodoBean) object).setServiceCode("9");
 			((TodoBean) object).setAccessCode(splitData[1].split("=")[1]);
 			((TodoBean) object).setStartDate(splitData[2].split("=")[1]);
 			((TodoBean) object).setStatus(splitData[3].split("=")[1]);
@@ -114,6 +119,7 @@ public class TaskManager {
 			//serviceCode=12&accessCode=changyong&startDate=2022101&endDate=20221031&status=1&isEnable=1&isAll=1
 			object = new TodoBean();
 			((TodoBean) object).setFileIndex(2);
+			((TodoBean) object).setServiceCode("12");
 			((TodoBean) object).setAccessCode(splitData[1].split("=")[1]);
 			((TodoBean) object).setStartDate(splitData[2].split("=")[1]);
 			((TodoBean) object).setEndDate(splitData[3].split("=")[1]);
@@ -121,6 +127,15 @@ public class TaskManager {
 			((TodoBean) object).setIsEnable(splitData[5].split("=")[1]);
 			((TodoBean) object).setIsAll((splitData[6].split("=")[1].equals("1")?true:false));
 			break;
+			
+		case "13":
+			//serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
+			object = new TodoBean();
+			((TodoBean) object).setFileIndex(2);
+			((TodoBean) object).setServiceCode("13");
+			((TodoBean) object).setAccessCode(splitData[1].split("=")[1]);
+			((TodoBean) object).setStartDate(splitData[2].split("=")[1].substring(0, 8));
+			((TodoBean) object).setEndDate(splitData[3].split("=")[1].substring(0, 8));
 		}
 
 		return object;

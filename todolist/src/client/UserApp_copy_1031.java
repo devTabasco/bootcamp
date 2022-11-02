@@ -118,6 +118,7 @@ public class UserApp_copy_1031 {
 
 									}
 								}
+								
 //								if (userInput[0] == null) {
 //									System.out.print("\t+++++++++++++++++++++++++++++++++++++ Start Date : ");
 //									userInput[0] = this.userInput(sc);
@@ -142,7 +143,7 @@ public class UserApp_copy_1031 {
 //									if (this.isBreak(userInput[1]))
 //										break;
 //									if (this.isReStart(userInput[1])) {
-//										if (this.isMonthNext(userInput[1]) == true) {
+//										if (this.isMonthNext(userInput[1])) {
 //											addMonth++;
 //										} else {
 //											addMonth--;

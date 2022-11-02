@@ -2,7 +2,6 @@ package client;
 
 import java.time.LocalDate;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import server.ServerController;
@@ -16,12 +15,15 @@ public class TaskManagement {
 	}
 	
 	public Object taskController(String clientData) {
-//		System.out.println(clientData);
+		System.out.println(clientData);
 		Object result = null;
 		switch (clientData.split("&")[0].split("=")[1]) {
 		case "12":
 			result = this.getTaskListCtl(clientData);
 			break;
+		case "13":
+			//serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
+			result = this.getTaskListCtl(clientData);
 		}
 		
 		return result;
@@ -33,18 +35,6 @@ public class TaskManagement {
 		case 11:
 			result = this.makeTaskCalendarCtl(accessCode, addMonth, menuSelection);
 			break;
-		case 12:
-			this.getTaskListCtl(accessCode);
-			break;
-//		case 2:
-//			this.TaskRegistrationCtl(accessCode);
-//			break;
-//		case 3:
-//			this.setModifyTaskCtl(accessCode);
-//			break;
-//		case 4:
-//			this.getTaskStatCtl(accessCode);
-//			break;
 		}
 		
 		return result;
@@ -69,7 +59,14 @@ public class TaskManagement {
 	private Object getTaskListCtl(String clientData) {
 		//clientData : serviceCode=12&accessCode=changyong&startDate=20221012&endDate=20221012&status=0&isEnable=0&isAll=1
 		serverController = new ServerController();
-		return this.makeListData(serverController.controller(clientData).split(";"),clientData);
+		if(clientData.split("&")[0].split("=")[1].equals("12")) {
+			return this.makeListData(serverController.controller(clientData).split(";"),clientData);
+		}else if(clientData.split("&")[0].split("=")[1].equals("13")) {
+			//serviceCode=13&id=changyong&startDate=202211010000&endDate=202211120000
+			return this.makeListData(serverController.controller(clientData).split(";"),clientData);
+		}else {
+			return null;
+		}
 	}
 	
 	private String makeListData(String[] record, String clientData) {
@@ -103,7 +100,6 @@ public class TaskManagement {
 				}
 			}
 			//startDate,endDate,contents,status,isEnable,comment
-			
 			todoList.append("----------------------------------------------\n");
 			todoList.append("\t\t"+clientData.split("&")[2].split("=")[1]+"  -  "+clientData.split("&")[3].split("=")[1]+"\n\n");
 			for(int i = 0;i<record.length;i++) {
@@ -112,7 +108,7 @@ public class TaskManagement {
 				todoList.append("\t\t"+todo[2]+"\n");
 			}
 			todoList.append("\t0.돌아가기\n");
-			todoList.append("----------------------------------------------\n");
+			todoList.append("------------------------------------Select : \n");
 			return todoList.toString();
 	}
 	

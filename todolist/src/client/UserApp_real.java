@@ -93,11 +93,11 @@ public class UserApp_real {
 							// 3. in progress(status=1,isEnable=1)
 							// 4. done(status=-1, isEnable = 1)
 							// 5. temporary deletion(isEnable = 0)
-							
+
 							this.display(this.getChoiceListMenu());
 							menuSelection = this.userInput(sc);
-							
-							//conditions = {status, isEnable, isAll}
+
+							// conditions = {status, isEnable, isAll}
 
 							/* status 선택 화면 */
 							taskManagement = new TaskManagement();
@@ -106,14 +106,12 @@ public class UserApp_real {
 							int addMonth = 0;
 
 							int step = 0;
-//							while (true) {
-							// data 유형 선택 화면
-							/* TaskManagement Class Call */
-							/* MakeCalendar Class Call */
 
 							// Start Date
 							while (step <= 2) {
-								this.display(taskManagement.taskController(11, accessInfo[0], addMonth, inputConditions(menuSelection)).toString());
+								this.display(taskManagement
+										.taskController(11, accessInfo[0], addMonth, inputConditions(menuSelection))
+										.toString());
 								if (userInput[step] == null) {
 									this.printSelectMenu(step);
 									userInput[step] = this.userInput(sc); // 사용자입력
@@ -160,16 +158,140 @@ public class UserApp_real {
 							// 입력 숫자 확인(이번달 안에 있는 건지)
 //								System.out.println("Step 2 호출");
 							// 리스트 가져오기
-							this.display(taskManagement.taskController(this.makeClientData(userInput, selectMonth)).toString());
+							this.display(taskManagement.taskController(this.makeClientData(userInput, selectMonth,
+									inputConditions(menuSelection), accessInfo[0])).toString());
 
-							// Q누르면 빠져나가기
-							// P누르면 이전달 출력
-							// N누르면 다음달 출력
-							// 숫자 입력하면 그대로 진행
-//							} true while...
+							// 돌아가기 구현
+							menuSelection = this.userInput(sc);
 
-						} else {
+						}
 
+						if (menuSelection.equals("2")) {
+							int addMonth = 0;
+							// 일정 등록
+							// 캘린더 띄우기(토탈기준)
+							taskManagement = new TaskManagement();
+							String[] inputSetData = new String[3];
+							String tmp;
+							int step = 0;
+							while (true) {
+
+								while (step <= 2) {
+									this.display(taskManagement
+											.taskController(11, accessInfo[0], addMonth, inputConditions("1"))
+											.toString());
+									this.display("\t+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+									if (step == 0) {
+										this.display("\t시작일을 입력해주세요. ex) 2022/10/21 : ");
+									} else if (step == 1) {
+										this.display("\t마감일을 입력해주세요. ex) 2022/10/30 : ");
+									} else {
+										this.display("\t내용을 입력해주세요. (내용은 30자 이내입니다.) : ");
+									}
+									inputSetData[step] = this.userInput(sc);
+
+									if (this.isBreak(inputSetData[step]))
+										break;
+									if (this.isReStart(inputSetData[step])) {
+										if (this.isMonthNext(inputSetData[step])) {
+											addMonth++;
+										} else {
+											addMonth--;
+										}
+										inputSetData[step] = null;
+										continue;
+									}
+
+									tmp = inputSetData[step].replace("/", "");
+									inputSetData[step] = tmp;
+
+									if (step == 0) {
+										if (Integer.parseInt(this.getToday(true).replace(".", "").replace(" ",
+												"")) > Integer.parseInt(tmp)) {
+											this.display("\t오늘 이전 날짜는 시작일로 선택할 수 없습니다.\n");
+											continue;
+										}
+									} else if (step == 1) {
+										if (Integer.parseInt(inputSetData[0].replace("/", "")) > Integer
+												.parseInt(tmp)) {
+											this.display("\t마감일은 시작일 이전일 수 없습니다.\n");
+											continue;
+										}
+									} else {
+										if (inputSetData[2].length() > 30) {
+											this.display("\t내용은 30자 이내로 작성 가능합니다.\n");
+											continue;
+										}
+									}
+
+									step++;
+
+								}
+								
+								//여기서 inputSetData[]를 사용해 server에 전달.
+								ctl.controller(this.makeClientData("2", inputSetData, accessInfo[0]));
+								
+
+								this.display("\t등록이 완료되었습니다.\n");
+								this.display("\t1. 새로운 일정 등록		2. 나가기\n");
+								this.display("\t+++++++++++++++++++++++++++++++++++++++++++Select : ");
+
+								menuSelection = this.userInput(sc);
+
+								if (menuSelection.equals("2")) {
+									break;
+								} else if (menuSelection.equals("1")) {
+									continue;
+								} else {
+									this.display("\t올바른 번호를 선택해주세요.");
+								}
+							}
+
+						}
+
+						if (menuSelection.equals("3")) {
+							// 일정 수정
+							int addMonth = 0;
+							int step = 0;
+							String[] inputSetData = new String[2];
+							String tmp;
+							taskManagement = new TaskManagement();
+							
+							while (step <= 1) {
+							this.display(taskManagement
+									.taskController(11, accessInfo[0], addMonth, inputConditions("1"))
+									.toString());
+							
+							this.display("\t+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+							if (step == 0) {
+								this.display("\t시작 조회일을 입력해주세요. ex) 2022/10/21 : ");
+							} else if (step == 1) {
+								this.display("\t마지막 조회일을 입력해주세요. ex) 2022/10/30 : ");
+							}
+							inputSetData[step] = this.userInput(sc);
+
+							if (this.isBreak(inputSetData[step]))
+								break;
+							if (this.isReStart(inputSetData[step])) {
+								if (this.isMonthNext(inputSetData[step])) {
+									addMonth++;
+								} else {
+									addMonth--;
+								}
+								inputSetData[step] = null;
+								continue;
+							}
+
+							tmp = inputSetData[step].replace("/", "");
+							inputSetData[step] = tmp;
+
+							step++;
+							
+							}
+							//수정할 리스트 출력
+							//계정, 시작, 마감, 
+							this.display(taskManagement.taskController(this.makeClientData(inputSetData, accessInfo[0])).toString());
+							
 						}
 					}
 
@@ -181,28 +303,39 @@ public class UserApp_real {
 		sc.close();
 	}
 	
-	private String inputConditions(String menuSelection) {
-		String[] conditions = new String[3];
-		if (menuSelection.equals("1")) {
-			conditions[2] = "1";
-		}else if(menuSelection.equals("2")) {
-			conditions[0] = "0";
-			conditions[1] = "1";
-		}else if(menuSelection.equals("3")) {
-			conditions[0] = "1";
-			conditions[1] = "1";
-		}else if(menuSelection.equals("4")) {
-			conditions[0] = "-1";
-			conditions[1] = "1";
-		}else {
-			conditions[1] = "0";
-		}
-		
-		return "status=" + conditions[0] + "&isEnable=" + conditions[1] + "&isAll=" + conditions[2];
-		
+	private String makeClientData(String[] inputSetData, String accessCode) {
+		StringBuffer clientData = new StringBuffer();
+		clientData.append("serviceCode=13");
+		clientData.append("&id=" + accessCode);
+		clientData.append("&startDate="+inputSetData[0]+"0000");
+		clientData.append("&endDate="+inputSetData[1]+"0000");
+		return clientData.toString();
 	}
 
-	private String makeClientData(String[] userInput, String[] selectMonth) {
+	private String inputConditions(String menuSelection) {
+		// 0 -> status / 1-> isEnable / 2-> isAll
+		String[] conditions = new String[3];
+		if (menuSelection.equals("1")) {
+			conditions[1] = "1";
+			conditions[2] = "1";
+		} else if (menuSelection.equals("2")) {
+			conditions[0] = "0";
+			conditions[1] = "1";
+		} else if (menuSelection.equals("3")) {
+			conditions[0] = "1";
+			conditions[1] = "1";
+		} else if (menuSelection.equals("4")) {
+			conditions[0] = "-1";
+			conditions[1] = "1";
+		} else {
+			conditions[1] = "0";
+		}
+
+		return "status=" + conditions[0] + "&isEnable=" + conditions[1] + "&isAll=" + conditions[2];
+
+	}
+
+	private String makeClientData(String[] userInput, String[] selectMonth, String inputConditions, String accessCode) {
 		// serviceCode=12&accessCode=changyong&startDate=12&endDate=12&status=0&isEnable=0&isAll=1
 
 		for (int i = 0; i < userInput.length; i++) {
@@ -212,8 +345,10 @@ public class UserApp_real {
 
 		}
 
-		return "serviceCode=12&accessCode=changyong&startDate=" + selectMonth[0] + userInput[0] + "&endDate="
-				+ selectMonth[1] + userInput[1] + "&status=1&isEnable=1&isAll=1";
+		return "serviceCode=12&accessCode=" + accessCode + "&startDate=" + selectMonth[0] + userInput[0] + "&endDate="
+				+ selectMonth[1] + userInput[1] + "&status=" + inputConditions.split("&")[0].split("=")[1]
+				+ "&isEnable=" + inputConditions.split("&")[1].split("=")[1] + "&isAll="
+				+ inputConditions.split("&")[2].split("=")[1];
 //				+ userInput[2]; //추후 유형 추가
 	}
 
@@ -261,6 +396,22 @@ public class UserApp_real {
 	/* 정수의 범의 체크 */
 	private boolean isIntegerRange(int value, int starting, int last) {
 		return (value >= starting && value <= last) ? true : false;
+	}
+	
+	private String makeClientData(String serviceCode, String[] inputSetData, String accessCode) {
+		//serviceCode=2&id=changyong&startDate=20221102&endDate=20221102&contents=dd
+		String[] item = {"startDate","endDate","contents"};
+		StringBuffer clientData = new StringBuffer();
+		clientData.append("serviceCode=" + serviceCode);
+		clientData.append("&id=" + accessCode);
+		for (int i = 0; i < inputSetData.length; i++) {
+			if (inputSetData[i] != null) {
+					clientData.append("&");
+					clientData.append(item[i] + "=" +((i<2)?(inputSetData[i]+"0000"):inputSetData[i]));
+			}
+		}
+//		System.out.println(clientData.toString());
+		return clientData.toString();
 	}
 
 	// makeClinetData
