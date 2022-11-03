@@ -3,13 +3,9 @@ package client;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Scanner;
 
-import javax.management.loading.ClassLoaderRepository;
-
 import server.ServerController;
-import server.TaskManager;
 
 public class UserApp_real {
 
@@ -37,13 +33,11 @@ public class UserApp_real {
 				accessInfo[idx] = this.userInput(sc);
 			}
 			this.display(this.getAccessLayer(false, null)); // print connecting...
-//			connecting();
+			connecting();
 
 			/* 서버에 로그인 정보 전달 */
 			// serviceCode=1&id=changyong&password=1234
 			accessResult = ctl.controller(this.makeClientData("1", itemName, accessInfo)).equals("1") ? true : false; // "1"
-																														// or
-																														// "0";
 
 			/* 서버로부터 받은 로그인 결과에 따른 화면 출력 */
 			this.display(this.accessResult(accessResult));
@@ -156,6 +150,11 @@ public class UserApp_real {
 									step++;
 								}
 							}
+							//강제로 나가라...
+//							if (this.isBreak(userInput[step])) {
+//								accessInfo[0] = null;
+//								break;
+//							}
 
 							// 입력 숫자 확인(이번달 안에 있는 건지)
 //								System.out.println("Step 2 호출");
@@ -164,7 +163,14 @@ public class UserApp_real {
 									inputConditions(menuSelection), accessInfo[0])).toString());
 
 							// 돌아가기 구현
-							menuSelection = this.userInput(sc);
+							while(true) {
+								menuSelection = this.userInput(sc);
+								if(!menuSelection.equals("0")) {
+									this.display("돌아가기를 원하시면, 0을 눌러주세요 : ");
+								}else {
+									break;								
+								}
+							}
 
 						}
 
@@ -260,6 +266,7 @@ public class UserApp_real {
 							taskManagement = new TaskManagement();
 							String[] modifyListData;
 							String modifyOrigin;
+							String modifyMenuSelection;
 							
 							while (step <= 1) {
 							this.display(taskManagement
@@ -303,10 +310,11 @@ public class UserApp_real {
 							//수정할 리스트 내역 보여주기
 							while(true) {
 								modifyOrigin = "serviceCode=14&" + "originData=" + accessInfo[0] + "," + modifyListData[Integer.parseInt(menuSelection)];
+								if(menuSelection.equals("0")) break;
 								modifyListData = makeModifyView(modifyListData[Integer.parseInt(menuSelection)]).split(";");
 								this.display(modifyListData[0]);
 								
-								menuSelection = this.userInput(sc);
+								modifyMenuSelection = this.userInput(sc);
 								
 								//내용수정
 								//날짜수정
@@ -317,30 +325,34 @@ public class UserApp_real {
 								//수정된 데이터를 전달받아 데이터베이스 업데이트 후 while문을 통해 위 수정리스트 내역을 띄워주기.
 								//status랑 isEnable 정보가 필요하면, makeModifyView에서 String으로 받아와 나눠서 파라미터로 넘기기.
 								
-								if(menuSelection.equals("4")) {
-									//serviceCode=14&originData=changyong,202211021100,202211051000,코딩하기,1,1,null&isEnAble
-									this.display(ctl.controller(modifyOrigin + "&isEnAble="));
+								if(modifyMenuSelection.equals("4")) {
+									//serviceCode=14&originData=changyong,202211021100,202211051000,코딩하기,1,1,null&isEnAble=
+									if(modifyOrigin.split("&")[1].split("=")[1].split(",")[5].equals("1")) {
+										ctl.controller(modifyOrigin + "&isEnAble=0");
+									}else {
+										ctl.controller(modifyOrigin + "&isEnAble=1");
+									}
+									break;
 									//상태 바꿔서 보내주기
-									break; 
 								}
-								if(menuSelection.equals("0")) break; //그냥 break
+								if(modifyMenuSelection.equals("0")) break; //그냥 break
 								
 								//메뉴 선택에 따른 수정할 내용을 반환, 날짜의 경우 ;를 구분자로 시작일;마감일 을 받음.
-								tmp = this.modifyController(menuSelection, sc, modifyListData[1], modifyListData[2]);
+								tmp = this.modifyController(modifyMenuSelection, sc, modifyListData[1], modifyListData[2]);
 								
-								if(menuSelection.equals("1")) {
+								if(modifyMenuSelection.equals("1")) {
 									ctl.controller(modifyOrigin + "&contents=" + tmp);
 //									display(modifyOrigin + "&contents=" + tmp);
 									break;
-								}else if(menuSelection.equals("2")) {
+								}else if(modifyMenuSelection.equals("2")) {
 									ctl.controller(modifyOrigin + "&date=" + tmp);
 //									display(modifyOrigin + "&date=" + tmp);
 									break;
-								}else if(menuSelection.equals("3")) {
+								}else if(modifyMenuSelection.equals("3")) {
 									ctl.controller(modifyOrigin + "&status=" + tmp);
 //									display(modifyOrigin + "&status=" + tmp);
 									break;
-								}else if(menuSelection.equals("5")) {
+								}else if(modifyMenuSelection.equals("5")) {
 									ctl.controller(modifyOrigin + "&comments=" + tmp);
 //									display(modifyOrigin + "&comments=" + tmp);
 									break;
@@ -480,10 +492,6 @@ public class UserApp_real {
 		modifyView.append(";");
 		modifyView.append(data[4]);
 		return modifyView.toString();
-	}
-	
-	private String makeModifyData(String modifyData) {
-		return null;
 	}
 	
 	private String makeClientData(String[] inputSetData, String accessCode) {
@@ -640,10 +648,10 @@ public class UserApp_real {
 	private String accessResult(boolean isAccess) {
 		StringBuffer accessResult = new StringBuffer();
 
-		accessResult.append("\n     >>>>>>>>>>>>>>>>>>>>>>>>> ");
+		accessResult.append("     >>>>>>>>>>>>>>>>>>>>>>>>> ");
 		if (isAccess) {
 			accessResult.append("Successful Connection\n");
-			accessResult.append("     Move after 2 sceonds...\n");
+//			accessResult.append("     Move after 2 sceonds...\n");
 		} else {
 			accessResult.append("Connection Failed\n");
 			accessResult.append("     _______________________________ Retry(y/n) ? ");
@@ -687,7 +695,7 @@ public class UserApp_real {
 
 	private void connecting() {
 		System.out.print("     connecting");
-		for (int i = 0; i < 13; i++) {
+		for (int i = 0; i < 12; i++) {
 			System.out.print("...");
 
 			try {

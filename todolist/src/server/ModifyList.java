@@ -2,7 +2,6 @@ package server;
 
 import java.util.ArrayList;
 
-import server.beans.AccessHistoryBean;
 import server.beans.TodoBean;
 
 public class ModifyList {
@@ -16,8 +15,6 @@ public class ModifyList {
 		ArrayList<TodoBean> todoBeans;
 
 		// clientData 분리 후
-		// serviceCode=14&originData=changyong,202211021100,202211051000,코딩하기,1,1,null&contents=정현우
-		// serviceCode=14&originData=changyong,202211021100,202211051000,코딩하기,1,1,null&date=20221103,20221108
 		String[] splitData = clientData.split("&");
 		String[] origin = splitData[1].split("=")[1].split(","); //changyong,202211021100,202211051000,코딩하기,1,1,null
 		String[] modifyMenu = splitData[2].split("=");
@@ -60,14 +57,8 @@ public class ModifyList {
 			}else if(modifyMenu[0].equals("comments")) {
 				listData.setComment(modifyMenu[1]);
 			}else if(modifyMenu[0].equals("isEnAble")) {
-				if(listData.getIsEnable().equals("1")) listData.setIsEnable("0");
-				if(listData.getIsEnable().equals("0")) listData.setIsEnable("1");
+				listData.setIsEnable(modifyMenu[1]);
 			}
-			// 내용이 모두 같으면!
-			//
-			// todoBeans에 수정된 내용의 새로운 데이터 추가
-			// todoBeans에 기존 빈 삭제
-			// 그리고 마지막에 todoBeans를 서버에 리턴
 		}
 
 //		result = dao.writeModitiedTodoList(todoBeans);

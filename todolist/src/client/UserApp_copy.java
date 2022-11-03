@@ -3,11 +3,9 @@ package client;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Scanner;
 
 import server.ServerController;
-import server.TaskManager;
 
 public class UserApp_copy {
 
@@ -35,13 +33,11 @@ public class UserApp_copy {
 				accessInfo[idx] = this.userInput(sc);
 			}
 			this.display(this.getAccessLayer(false, null)); // print connecting...
-//			connecting();
+			connecting();
 
 			/* 서버에 로그인 정보 전달 */
 			// serviceCode=1&id=changyong&password=1234
 			accessResult = ctl.controller(this.makeClientData("1", itemName, accessInfo)).equals("1") ? true : false; // "1"
-																														// or
-																														// "0";
 
 			/* 서버로부터 받은 로그인 결과에 따른 화면 출력 */
 			this.display(this.accessResult(accessResult));
@@ -101,14 +97,14 @@ public class UserApp_copy {
 
 							/* status 선택 화면 */
 							taskManagement = new TaskManagement();
-							String[] userInput = new String[3];
-							String[] selectMonth = new String[3];
+							String[] userInput = new String[2];
+							String[] selectMonth = new String[2];
 							int addMonth = 0;
 
 							int step = 0;
 
 							// Start Date
-							while (step <= 2) {
+							while (step <= 1) {
 								this.display(taskManagement
 										.taskController(11, accessInfo[0], addMonth, inputConditions(menuSelection))
 										.toString());
@@ -119,6 +115,15 @@ public class UserApp_copy {
 											+ ((LocalDate.now().plusMonths(addMonth).getMonthValue() < 10)
 													? "0" + (LocalDate.now().plusMonths(addMonth).getMonthValue())
 													: (LocalDate.now().plusMonths(addMonth).getMonthValue()) + "");
+
+//									if(userInput[1] != null) {
+//										if(Integer.parseInt(selectMonth[0]+userInput[0]) > Integer.parseInt(selectMonth[1]+userInput[1])) {
+//											this.display("마감일은 시작일 이전일 수 없습니다.\n");
+//											userInput[1] = null;
+//											step--;
+//											continue;
+//										}
+//									}
 
 									if (this.isBreak(userInput[step]))
 										break;
@@ -131,6 +136,16 @@ public class UserApp_copy {
 										userInput[step] = null;
 										continue;
 									}
+									
+									if(userInput[1] != null) {
+//										System.out.println(selectMonth[0] + userInput[0] + selectMonth[1] + userInput[1]);
+										if(Integer.parseInt(selectMonth[0] + ((userInput[0].length()<2)?"0"+userInput[0]:userInput[0])) > Integer.parseInt(selectMonth[1] + ((userInput[1].length()<2)?"0"+userInput[1]:userInput[1]))) {
+											this.display("\t[마감일은 시작일 이전일 수 없습니다.]\n");
+											userInput[step] = null;
+											continue;
+										}
+										
+									}
 
 									// 사용자 입력 오류 거르기(22.11.01 오전추가)
 									if (this.isInteger(userInput[step])) {
@@ -141,10 +156,6 @@ public class UserApp_copy {
 											continue;
 										}
 									} else {
-										if (step == 2 && userInput[2].equals("T")) {
-											step++;
-											break;
-										}
 
 										userInput[step] = null;
 										this.display("\n[Message : 숫자, P, N 중에 입력해주세요.  ]\n");
@@ -154,6 +165,11 @@ public class UserApp_copy {
 									step++;
 								}
 							}
+							//강제로 나가라...
+//							if (this.isBreak(userInput[step])) {
+//								accessInfo[0] = null;
+//								break;
+//							}
 
 							// 입력 숫자 확인(이번달 안에 있는 건지)
 //								System.out.println("Step 2 호출");
@@ -162,7 +178,14 @@ public class UserApp_copy {
 									inputConditions(menuSelection), accessInfo[0])).toString());
 
 							// 돌아가기 구현
-							menuSelection = this.userInput(sc);
+							while(true) {
+								menuSelection = this.userInput(sc);
+								if(!menuSelection.equals("0")) {
+									this.display("돌아가기를 원하시면, 0을 눌러주세요 : ");
+								}else {
+									break;								
+								}
+							}
 
 						}
 
@@ -188,7 +211,8 @@ public class UserApp_copy {
 									} else {
 										this.display("\t내용을 입력해주세요. (내용은 30자 이내입니다.) : ");
 									}
-									inputSetData[step] = this.userInput(sc);
+									
+									inputSetData[step] = this.userInput(sc);										
 
 									if (this.isBreak(inputSetData[step]))
 										break;
@@ -257,6 +281,8 @@ public class UserApp_copy {
 							String tmp;
 							taskManagement = new TaskManagement();
 							String[] modifyListData;
+							String modifyOrigin;
+							String modifyMenuSelection;
 							
 							while (step <= 1) {
 							this.display(taskManagement
@@ -298,21 +324,57 @@ public class UserApp_copy {
 							menuSelection = this.userInput(sc);
 							
 							//수정할 리스트 내역 보여주기
-							this.display(makeModifyView(modifyListData[Integer.parseInt(menuSelection)]));
-							
-							menuSelection = this.userInput(sc);
-							
-							//내용수정
-							//날짜수정
-							//진행상태수정
-							//삭제
-							//코멘트 남기기
-							//를 선택했을 때 해당 선택지를 파라미터로 받아 그에 맞는 뷰를 보여주고,
-							//수정된 데이터를 전달받아 데이터베이스 업데이트 후 while문을 통해 위 수정리스트 내역을 띄워주기.
-							//status랑 isEnable 정보가 필요하면, makeModifyView에서 String으로 받아와 나눠서 파라미터로 넘기기.
-							
-							this.display(this.modifyController(menuSelection));
-							menuSelection = this.userInput(sc);
+							while(true) {
+								modifyOrigin = "serviceCode=14&" + "originData=" + accessInfo[0] + "," + modifyListData[Integer.parseInt(menuSelection)];
+								if(menuSelection.equals("0")) break;
+								modifyListData = makeModifyView(modifyListData[Integer.parseInt(menuSelection)]).split(";");
+								this.display(modifyListData[0]);
+								
+								modifyMenuSelection = this.userInput(sc);
+								
+								//내용수정
+								//날짜수정
+								//진행상태수정
+								//삭제
+								//코멘트 남기기
+								//를 선택했을 때 해당 선택지를 파라미터로 받아 그에 맞는 뷰를 보여주고,
+								//수정된 데이터를 전달받아 데이터베이스 업데이트 후 while문을 통해 위 수정리스트 내역을 띄워주기.
+								//status랑 isEnable 정보가 필요하면, makeModifyView에서 String으로 받아와 나눠서 파라미터로 넘기기.
+								
+								if(modifyMenuSelection.equals("4")) {
+									//serviceCode=14&originData=changyong,202211021100,202211051000,코딩하기,1,1,null&isEnAble=
+									if(modifyOrigin.split("&")[1].split("=")[1].split(",")[5].equals("1")) {
+										ctl.controller(modifyOrigin + "&isEnAble=0");
+									}else {
+										ctl.controller(modifyOrigin + "&isEnAble=1");
+									}
+									break;
+									//상태 바꿔서 보내주기
+								}
+								if(modifyMenuSelection.equals("0")) break; //그냥 break
+								
+								//메뉴 선택에 따른 수정할 내용을 반환, 날짜의 경우 ;를 구분자로 시작일;마감일 을 받음.
+								tmp = this.modifyController(modifyMenuSelection, sc, modifyListData[1], modifyListData[2]);
+								
+								if(modifyMenuSelection.equals("1")) {
+									ctl.controller(modifyOrigin + "&contents=" + tmp);
+//									display(modifyOrigin + "&contents=" + tmp);
+									break;
+								}else if(modifyMenuSelection.equals("2")) {
+									ctl.controller(modifyOrigin + "&date=" + tmp);
+//									display(modifyOrigin + "&date=" + tmp);
+									break;
+								}else if(modifyMenuSelection.equals("3")) {
+									ctl.controller(modifyOrigin + "&status=" + tmp);
+//									display(modifyOrigin + "&status=" + tmp);
+									break;
+								}else if(modifyMenuSelection.equals("5")) {
+									ctl.controller(modifyOrigin + "&comments=" + tmp);
+//									display(modifyOrigin + "&comments=" + tmp);
+									break;
+								}
+								
+							}
 						}
 					}
 
@@ -324,23 +386,67 @@ public class UserApp_copy {
 		sc.close();
 	}
 	
-	private String modifyController(String menuSelection) {
-		StringBuffer selection = new StringBuffer();
+	private String modifyController(String menuSelection, Scanner sc, String status, String isEnAble) {
+		StringBuffer response = new StringBuffer();
+		String tmp;
 		
 		if(menuSelection.equals("1")) {
-			selection.append("수정할 내용을 입력하세요 : ");
+			this.display("수정할 내용을 입력하세요 : ");
+			response.append(this.userInput(sc));
 		}else if(menuSelection.equals("2")) {
-			selection.append("시작 변경일을 입력해주세요. ex) 2022/10/21 : ");
-			selection.append("마감 변경일을 입력해주세요. ex) 2022/10/30 : ");
+			this.display("시작 변경일을 입력해주세요. ex) 2022/10/21 : ");
+			response.append(this.userInput(sc).replace("/",""));
+			response.append(",");
+			this.display("마감 변경일을 입력해주세요. ex) 2022/10/30 : ");
+			response.append(this.userInput(sc).replace("/",""));
 		}else if(menuSelection.equals("3")) {
-			selection.append("수정할 내용을 입력하세요 : ");
-		}else if(menuSelection.equals("4")) {
-			selection.append("수정할 내용을 입력하세요 : ");
+			if(status.equals("진행 전")) {
+				this.display("변경할 상태를 선택해주세요 : \n");
+				this.display("1. 진행 중	2. 진행 완료	0. 취소");
+				tmp = userInput(sc);
+				if(tmp.equals("1")) {
+					response.append("1");
+				}else if(tmp.equals("2")) {
+					response.append("-1");
+				}else {
+					response.append("취소");
+				}
+			}else if(status.equals("진행 중")) {
+				this.display("변경할 상태를 선택해주세요 : \n");
+				this.display("1. 진행 전	2. 진행 완료	0. 취소");
+				tmp = userInput(sc);
+				if(tmp.equals("1")) {
+					response.append("0");
+				}else if(tmp.equals("2")) {
+					response.append("-1");
+				}else {
+					response.append("취소");
+				}
+			}else if(status.equals("진행 완료")) {
+				this.display("변경할 상태를 선택해주세요 : \n");
+				this.display("1. 진행 전	2. 진행 중	0. 취소");
+				tmp = userInput(sc);
+				if(tmp.equals("1")) {
+					response.append("0");
+				}else if(tmp.equals("2")) {
+					response.append("1");
+				}else {
+					response.append("취소");
+				}
+			}
 		}else if(menuSelection.equals("5")) {
-			selection.append("수정할 내용을 입력하세요 : ");
+			while (true) {
+				this.display("Comment를 입력해주세요(30자 이내) : ");
+				tmp = this.userInput(sc);
+				if(tmp.length()<=30) {
+					response.append(tmp);
+					break;
+				}
+			}
+			
 		}
 		
-		return selection.toString();
+		return response.toString();
 	}
 	
 	private String makeModifyView(String todoData) {
@@ -397,6 +503,10 @@ public class UserApp_copy {
 		modifyView.append("5. comment 남기기\n"
 				+ "0. 돌아가기\n\n메뉴를 선택해주세요 : ");
 		
+		modifyView.append(";");
+		modifyView.append(data[3]);
+		modifyView.append(";");
+		modifyView.append(data[4]);
 		return modifyView.toString();
 	}
 	
@@ -554,10 +664,10 @@ public class UserApp_copy {
 	private String accessResult(boolean isAccess) {
 		StringBuffer accessResult = new StringBuffer();
 
-		accessResult.append("\n     >>>>>>>>>>>>>>>>>>>>>>>>> ");
+		accessResult.append("     >>>>>>>>>>>>>>>>>>>>>>>>> ");
 		if (isAccess) {
 			accessResult.append("Successful Connection\n");
-			accessResult.append("     Move after 2 sceonds...\n");
+//			accessResult.append("     Move after 2 sceonds...\n");
 		} else {
 			accessResult.append("Connection Failed\n");
 			accessResult.append("     _______________________________ Retry(y/n) ? ");
@@ -601,7 +711,7 @@ public class UserApp_copy {
 
 	private void connecting() {
 		System.out.print("     connecting");
-		for (int i = 0; i < 13; i++) {
+		for (int i = 0; i < 12; i++) {
 			System.out.print("...");
 
 			try {

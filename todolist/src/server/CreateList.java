@@ -7,13 +7,11 @@ public class CreateList {
 	}
 
 	public boolean createListCtl(String clientData) {
-		// serviceCode=2&id=changyong&startDate=20221102&endDate=20221102&contents=dd
 		TodoBean todoBean = (TodoBean) this.setBean(clientData); // 내가 적은 id, pw가 담긴 memberBean.
 		DataAccessObject dao = new DataAccessObject();
 		TodoBean saveTodoBean;
 		boolean result = false;
 
-		// changyong,202210271100,202210271100,코딩하기,1,1,null
 		saveTodoBean = new TodoBean();
 		saveTodoBean.setFileIndex(2);
 		saveTodoBean.setAccessCode(todoBean.getAccessCode());
@@ -32,7 +30,6 @@ public class CreateList {
 	}
 
 	private Object setBean(String clientData) {
-		//serviceCode=2&id=changyong&startDate=20221102&endDate=20221102&contents=dd
 		Object object = null;
 		String[] splitData = clientData.split("&");
 
