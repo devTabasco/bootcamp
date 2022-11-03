@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Scanner;
 
+import javax.management.loading.ClassLoaderRepository;
+
 import server.ServerController;
 import server.TaskManager;
 
@@ -257,6 +259,7 @@ public class UserApp_real {
 							String tmp;
 							taskManagement = new TaskManagement();
 							String[] modifyListData;
+							String modifyOrigin;
 							
 							while (step <= 1) {
 							this.display(taskManagement
@@ -298,21 +301,52 @@ public class UserApp_real {
 							menuSelection = this.userInput(sc);
 							
 							//수정할 리스트 내역 보여주기
-							this.display(makeModifyView(modifyListData[Integer.parseInt(menuSelection)]));
-							
-							menuSelection = this.userInput(sc);
-							
-							//내용수정
-							//날짜수정
-							//진행상태수정
-							//삭제
-							//코멘트 남기기
-							//를 선택했을 때 해당 선택지를 파라미터로 받아 그에 맞는 뷰를 보여주고,
-							//수정된 데이터를 전달받아 데이터베이스 업데이트 후 while문을 통해 위 수정리스트 내역을 띄워주기.
-							//status랑 isEnable 정보가 필요하면, makeModifyView에서 String으로 받아와 나눠서 파라미터로 넘기기.
-							
-							this.display(this.modifyController(menuSelection));
-							menuSelection = this.userInput(sc);
+							while(true) {
+								modifyOrigin = "serviceCode=14&" + "originData=" + accessInfo[0] + "," + modifyListData[Integer.parseInt(menuSelection)];
+								modifyListData = makeModifyView(modifyListData[Integer.parseInt(menuSelection)]).split(";");
+								this.display(modifyListData[0]);
+								
+								menuSelection = this.userInput(sc);
+								
+								//내용수정
+								//날짜수정
+								//진행상태수정
+								//삭제
+								//코멘트 남기기
+								//를 선택했을 때 해당 선택지를 파라미터로 받아 그에 맞는 뷰를 보여주고,
+								//수정된 데이터를 전달받아 데이터베이스 업데이트 후 while문을 통해 위 수정리스트 내역을 띄워주기.
+								//status랑 isEnable 정보가 필요하면, makeModifyView에서 String으로 받아와 나눠서 파라미터로 넘기기.
+								
+								if(menuSelection.equals("4")) {
+									//serviceCode=14&originData=changyong,202211021100,202211051000,코딩하기,1,1,null&isEnAble
+									this.display(ctl.controller(modifyOrigin + "&isEnAble="));
+									//상태 바꿔서 보내주기
+									break; 
+								}
+								if(menuSelection.equals("0")) break; //그냥 break
+								
+								//메뉴 선택에 따른 수정할 내용을 반환, 날짜의 경우 ;를 구분자로 시작일;마감일 을 받음.
+								tmp = this.modifyController(menuSelection, sc, modifyListData[1], modifyListData[2]);
+								
+								if(menuSelection.equals("1")) {
+									ctl.controller(modifyOrigin + "&contents=" + tmp);
+//									display(modifyOrigin + "&contents=" + tmp);
+									break;
+								}else if(menuSelection.equals("2")) {
+									ctl.controller(modifyOrigin + "&date=" + tmp);
+//									display(modifyOrigin + "&date=" + tmp);
+									break;
+								}else if(menuSelection.equals("3")) {
+									ctl.controller(modifyOrigin + "&status=" + tmp);
+//									display(modifyOrigin + "&status=" + tmp);
+									break;
+								}else if(menuSelection.equals("5")) {
+									ctl.controller(modifyOrigin + "&comments=" + tmp);
+//									display(modifyOrigin + "&comments=" + tmp);
+									break;
+								}
+								
+							}
 						}
 					}
 
@@ -324,23 +358,67 @@ public class UserApp_real {
 		sc.close();
 	}
 	
-	private String modifyController(String menuSelection) {
-		StringBuffer selection = new StringBuffer();
+	private String modifyController(String menuSelection, Scanner sc, String status, String isEnAble) {
+		StringBuffer response = new StringBuffer();
+		String tmp;
 		
 		if(menuSelection.equals("1")) {
-			selection.append("수정할 내용을 입력하세요 : ");
+			this.display("수정할 내용을 입력하세요 : ");
+			response.append(this.userInput(sc));
 		}else if(menuSelection.equals("2")) {
-			selection.append("시작 변경일을 입력해주세요. ex) 2022/10/21 : ");
-			selection.append("마감 변경일을 입력해주세요. ex) 2022/10/30 : ");
+			this.display("시작 변경일을 입력해주세요. ex) 2022/10/21 : ");
+			response.append(this.userInput(sc).replace("/",""));
+			response.append(",");
+			this.display("마감 변경일을 입력해주세요. ex) 2022/10/30 : ");
+			response.append(this.userInput(sc).replace("/",""));
 		}else if(menuSelection.equals("3")) {
-			selection.append("수정할 내용을 입력하세요 : ");
-		}else if(menuSelection.equals("4")) {
-			selection.append("수정할 내용을 입력하세요 : ");
+			if(status.equals("진행 전")) {
+				this.display("변경할 상태를 선택해주세요 : \n");
+				this.display("1. 진행 중	2. 진행 완료	0. 취소");
+				tmp = userInput(sc);
+				if(tmp.equals("1")) {
+					response.append("1");
+				}else if(tmp.equals("2")) {
+					response.append("-1");
+				}else {
+					response.append("취소");
+				}
+			}else if(status.equals("진행 중")) {
+				this.display("변경할 상태를 선택해주세요 : \n");
+				this.display("1. 진행 전	2. 진행 완료	0. 취소");
+				tmp = userInput(sc);
+				if(tmp.equals("1")) {
+					response.append("0");
+				}else if(tmp.equals("2")) {
+					response.append("-1");
+				}else {
+					response.append("취소");
+				}
+			}else if(status.equals("진행 완료")) {
+				this.display("변경할 상태를 선택해주세요 : \n");
+				this.display("1. 진행 전	2. 진행 중	0. 취소");
+				tmp = userInput(sc);
+				if(tmp.equals("1")) {
+					response.append("0");
+				}else if(tmp.equals("2")) {
+					response.append("1");
+				}else {
+					response.append("취소");
+				}
+			}
 		}else if(menuSelection.equals("5")) {
-			selection.append("수정할 내용을 입력하세요 : ");
+			while (true) {
+				this.display("Comment를 입력해주세요(30자 이내) : ");
+				tmp = this.userInput(sc);
+				if(tmp.length()<=30) {
+					response.append(tmp);
+					break;
+				}
+			}
+			
 		}
 		
-		return selection.toString();
+		return response.toString();
 	}
 	
 	private String makeModifyView(String todoData) {
@@ -397,7 +475,15 @@ public class UserApp_real {
 		modifyView.append("5. comment 남기기\n"
 				+ "0. 돌아가기\n\n메뉴를 선택해주세요 : ");
 		
+		modifyView.append(";");
+		modifyView.append(data[3]);
+		modifyView.append(";");
+		modifyView.append(data[4]);
 		return modifyView.toString();
+	}
+	
+	private String makeModifyData(String modifyData) {
+		return null;
 	}
 	
 	private String makeClientData(String[] inputSetData, String accessCode) {

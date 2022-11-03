@@ -10,18 +10,59 @@ import server.beans.TodoBean;
 
 //To access database
 public class DataAccessObject {
-	
-	
-	private String[] fileInfo = { "/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/MEMBERS.txt",
-			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/ACCESSHISTORY.txt",
-			"/Users/ChangYongLim/Documents/rnd/bootcamp/todolist/src/database/TODO.txt" };
-	
-//	private String[] fileInfo = { "C:\\java\\data\\todolist\\src\\database\\MEMBERS.txt",
-//			"C:\\java\\data\\todolist\\src\\database\\ACCESSHISTORY.txt",
-//			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
+	private String[] fileInfo = { "C:\\java\\data\\todolist\\src\\database\\MEMBERS.txt",
+			"C:\\java\\data\\todolist\\src\\database\\ACCESSHISTORY.txt",
+			"C:\\java\\data\\todolist\\src\\database\\TODO.txt" };
 
 	public DataAccessObject() {
 
+	}
+	
+	public ArrayList<TodoBean> readTodoData(int fileIndex) {
+		TodoBean todoBean;
+		ArrayList<TodoBean> todoList = null;
+		BufferedReader buffer = null;
+		String line = null;
+		
+		try {
+			buffer = new BufferedReader(new FileReader(new File(fileInfo[fileIndex])));
+			todoList = new ArrayList<TodoBean>();
+
+			while ((line = buffer.readLine()) != null) {
+				//changyong,202210271100,202210271100,코딩하기,1,1,null
+				// split
+				String[] tmp = line.split(",");
+				todoBean = new TodoBean();
+
+				// bean가져와서 데이터 넣기
+				todoBean.setAccessCode(tmp[0]);
+				todoBean.setStartDate(tmp[1]);
+				todoBean.setEndDate(tmp[2]);
+				todoBean.setContents(tmp[3]);
+				todoBean.setStatus(tmp[4]);
+				todoBean.setIsEnable(tmp[5]);
+				todoBean.setComment(tmp[6]);
+
+				// ArrayList에 new MemberBean()의 주소를 저장
+				todoList.add(todoBean);
+
+			}
+			// heap에 참조선이 연결된 부분은 예외처리 시 null로 초기화시켜 heap데이터를 제거해주어야 함.
+		} catch (FileNotFoundException e) {
+//		System.out.println("파일이 존재하지 않습니다.");
+			e.printStackTrace();
+		} catch (IOException e) {
+//		System.out.println("파일을 읽을 수 없습니다.");
+			todoList = null; // 참조선 제거
+			e.printStackTrace();
+		} finally {
+			try {
+				buffer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return todoList;
 	}
 
 	// member파일 전달
@@ -295,6 +336,34 @@ public class DataAccessObject {
 			bufferedWriter.write(accessInfo.getAccessCode() + "," + accessInfo.getStartDate() + ","
 					+ accessInfo.getEndDate() + "," + accessInfo.getContents() + "," + accessInfo.getStatus() + ","
 					+ accessInfo.getIsEnable() + "," + accessInfo.getComment() + "\n");
+			bufferedWriter.flush(); // write로 담은 내용 출력 후, 버퍼를 비움.
+
+			result = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				bufferedWriter.close(); // bufferedWriter close.
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return result;
+	}
+	
+	public boolean writeModitiedTodoList(ArrayList<TodoBean> todoBeans) {
+		boolean result = false;
+		BufferedWriter bufferedWriter = null;
+
+		try {
+			bufferedWriter = new BufferedWriter(new FileWriter(new File(fileInfo[2])));
+			
+			for(TodoBean todoBean : todoBeans) {
+				bufferedWriter.write(todoBean.getAccessCode() + "," + todoBean.getStartDate() + ","
+						+ todoBean.getEndDate() + "," + todoBean.getContents() + "," + todoBean.getStatus() + ","
+						+ todoBean.getIsEnable() + "," + todoBean.getComment() + "\n");
+			}
 			bufferedWriter.flush(); // write로 담은 내용 출력 후, 버퍼를 비움.
 
 			result = true;

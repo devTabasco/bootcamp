@@ -1,6 +1,5 @@
 package server;
 
-
 /* 클라이언트 요청에 따른 서비스 분기 */
 public class ServerController {
 	
@@ -35,6 +34,9 @@ public class ServerController {
 			task = new TaskManager();
 			//202211011100,202211301000,쓰레기통테스트,1,0,null;202211021100,202211051000,코딩하기,1,1,null;
 			result = task.getModifyListCtl(clientData);
+		}else if(serviceCode.equals("14")) {
+			ModifyList modifyList = new ModifyList();
+			result = modifyList.modifyRequest(clientData)?"수정완료":"수정불가";
 		}
 		
 		return result; 
