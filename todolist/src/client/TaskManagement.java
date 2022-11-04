@@ -17,10 +17,10 @@ public class TaskManagement {
 	public Object taskController(String clientData) {
 		Object result = null;
 		switch (clientData.split("&")[0].split("=")[1]) {
-		case "12":
+		case "12"://리스트 불러오기
 			result = this.getTaskListCtl(clientData);
 			break;
-		case "13":
+		case "13"://수정캘린더 불러오기
 			result = this.getTaskListCtl(clientData);
 			break;
 		}
@@ -57,7 +57,7 @@ public class TaskManagement {
 	/* 등록된 모든 할일 리스트 가져오기 */
 	private Object getTaskListCtl(String clientData) {
 		// clientData :
-		// serviceCode=12&accessCode=changyong&startDate=20221012&endDate=20221012&status=0&isEnable=0&isAll=1
+		// serviceCode=12&accessCode=changyong&startDate=20221012&endDate=20221012&status=0&isEnable=1&isAll=1
 		serverController = new ServerController();
 		if (clientData.split("&")[0].split("=")[1].equals("12")) {
 			return this.makeListData(serverController.controller(clientData).split(";"), clientData);

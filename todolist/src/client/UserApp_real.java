@@ -191,7 +191,6 @@ public class UserApp_real {
 							String[] inputSetData = new String[3];
 							String tmp;
 							int step = 0;
-							boolean check = true;
 							while (true) {
 
 								while (step <= 2) {
@@ -408,7 +407,8 @@ public class UserApp_real {
 
 		if (menuSelection.equals("1")) {
 			this.display("수정할 내용을 입력하세요 : ");
-			response.append(this.userInput(sc));
+			sc.nextLine();
+			response.append(sc.nextLine());
 		} else if (menuSelection.equals("2")) {
 			this.display("시작 변경일을 입력해주세요. ex) 2022/10/21 : ");
 			response.append(this.userInput(sc).replace("/", ""));
@@ -509,7 +509,7 @@ public class UserApp_real {
 		if (data[4].equals("활성")) {
 			modifyView.append("4. 삭제\n");
 		} else {
-			modifyView.append("4.되돌리기\n");
+			modifyView.append("4. 되돌리기\n");
 		}
 		modifyView.append("5. comment 남기기\n" + "0. 돌아가기\n\n메뉴를 선택해주세요 : ");
 
@@ -617,7 +617,7 @@ public class UserApp_real {
 	}
 
 	private String makeClientData(String serviceCode, String[] inputSetData, String accessCode) {
-		// serviceCode=2&id=changyong&startDate=20221102&endDate=20221102&contents=dd
+		// serviceCode=2&id=changyong&startDate=202211020000&endDate=202211020000&contents=dd
 		String[] item = { "startDate", "endDate", "contents" };
 		StringBuffer clientData = new StringBuffer();
 		clientData.append("serviceCode=" + serviceCode);
